@@ -1,0 +1,23 @@
+php artisan make:migration create_role_table --create=role
+
+php artisan make:migration create_users_table --create=users
+
+php artisan make:migration create_searchHistory_table --create=searh_history
+
+php artisan make:migration create_favorite_table --create=favorite
+
+php artisan make:migration create_category_table --create=category
+
+php artisan make:migration create_products_table --create=products
+
+php artisan make:migration create_retailers_table --create=retailers
+
+php artisan make:migration create_crawler_table --create=crawler
+
+php artisan make:migration create_enrollment_table --create=enrollment
+
+php artisan make:migration create_priceList_table --create=price_list
+
+php artisan make:migration create_website_table --create=website
+
+php artisan make:migration create_pdf_table --create=pdf

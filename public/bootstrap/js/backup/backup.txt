@@ -1,0 +1,21 @@
+<!-- <script src="https://code.jquery.com/jquery.min.js"></script> -->
+<!-- <script  src="/bootstrap/price-slider/js/jquery-1.7.1.js"></script> -->
+<!-- <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script> -->
+<!-- <script type="text/javascript" src="/bootstrap/price-slider/js/jshashtable-2.1_src.js"></script>
+<script type="text/javascript" src="/bootstrap/price-slider/js/jquery.numberformatter-1.2.3.js"></script>
+<script type="text/javascript" src="/bootstrap/price-slider/js/tmpl.js"></script>
+<script type="text/javascript" src="/bootstrap/price-slider/js/jquery.dependClass-0.1.js"></script>
+<script type="text/javascript" src="/bootstrap/price-slider/js/draggable-0.1.js"></script>
+<script type="text/javascript" src="/bootstrap/price-slider/js/jquery.slider.js"></script> -->
+<!-- <script src="//code.jquery.com/jquery-1.11.3.min.js"></script> -->
+<!-- {!! Html::script('/bootstrap/js/bxslider.min.js') !!} -->
+<!-- {!! Html::script('/bootstrap/js/script.slider.js') !!} -->
+<!-- {!! Html::script('/bootstrap/js/jquery-ui.js') !!} -->
+
+<!-- {!! Html::script('/bootstrap/js/jquery.easing_1_3.min.js') !!} -->
+<!-- {!! Html::script('/bootstrap/js/bounce.js') !!} -->
+<!-- {!! Html::script('/bootstrap/Jquery-ui/jquery-ui.js') !!} -->
+<!-- {!! Html::script('/bootstrap/Jquery-ui/jquery_1_8_3.js') !!} -->
+
+<!-- {!! Html::script('/bootstrap/Jquery-ui/ui/jquery.ui.effect-bounce.js') !!} -->
+<!-- {!! Html::script('/bootstrap/Jquery-ui/ui/jquery.ui.effect-blind.js') !!} -->

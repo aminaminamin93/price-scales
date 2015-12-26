@@ -1,0 +1,95 @@
+<div class="comparison-container" style="margin-top:50px;">
+<div class="row omb_row-sm-offset-3">
+    <div class="products-to-compare" style="margin-right:50px; margin-bottom:50px;">
+        <div class="row omb_row-sm-offset-3" style="position:relative;">
+            <table>
+                <tr>
+                    <td>
+                        <div class="product-images">
+                            <img src="{!! $products->picture_link !!}" alt="" width="250">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="product-details">
+                            <h3>{!! $products->product_name !!}</h3>
+                            <p>PRICE :RM {!! number_format($products->product_price, 2) !!}</p>
+                            @for($i=0; $i<$fullstar; $i++)
+                                <i class="fa fa-star"></i>
+                            @endfor
+                            @for($o=0; $o<$halfstar; $o++)
+                                <i class="fa fa-star-half-o"></i>
+                            @endfor
+                            @for($p=0; $p<$blankstar; $p++)
+                                <i class="fa fa-star-o"></i>
+                            @endfor
+
+                            <br/>
+                            <small>123 Reviews</small>
+
+                        </div><span></span>
+                        <div>
+                            <a href="/product/favorite/{!! $products->id !!}" class="btn btn-info btn-xs">Add to Favorites</a>&nbsp;&nbsp;&nbsp;<a class="btn btn-info btn-xs">Details</a>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+       </div>
+    </div>
+</div>
+<div class="row omb_row-sm-offset-3">
+    <div class="products-other" style="margin-left:50px; margin-right:50px;">
+        <div class="row omb_row-sm-offset-3 omb_socialButtons">
+           <table class="table table-hover" >
+               <tr><th>Shopper </th><th>Rating/Reviews</th><th>Product title/name</th><th>Price</th><th>link to shopper site</th></tr>
+               @foreach($otherproducts as $prdother)
+                   <tr>
+                       <td>
+                           {{--{!! Html::image('images/retailer/',) !!}--}}
+                       </td>
+                       <td>
+                           <div class="product-wid-rating">
+
+                               <?php
+                               $star_number = $prdother->product_rating;
+
+                               if(strpos($star_number ,'.')){
+                                   $float = 1;
+                               }else{
+                                   $float = 0;
+                               }
+
+                               $floor_number = floor($star_number);
+                               ?>
+
+                               @for($i=0; $i<$floor_number; $i++)
+                                   <i class="fa fa-star"></i>
+                               @endfor
+
+
+                               @if($float == 1)
+                                   <i class="fa fa-star-half-o"></i>
+                                   @for($i=0; $i<(4-$floor_number); $i++)
+                                       <i class="fa fa-star-o"></i>
+                                   @endfor
+                               @else
+                                   @for($i=0; $i<(5-$floor_number); $i++)
+                                       <i class="fa fa-star-o"></i>
+                                   @endfor
+                               @endif
+                                   <span><p style="color:red"><small>{!! $prdother->product_reviews !!} Reviews</small></p></span>
+                           </div>
+
+
+
+                       </td><td>{!! $prdother->product_name !!}</td><td>RM {!! number_format($prdother->product_price, 2) !!}</td>
+                       <td><a class="btn btn-success btn-small" href="{!! $prdother->shopper_link !!}">Go To Shop</a></td></tr>
+               @endforeach
+
+           </table>
+        </div>
+    </div>
+</div>
+<div class="row">
+  sfdsfsfd
+</div>
+</div>

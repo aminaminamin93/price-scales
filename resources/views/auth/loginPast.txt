@@ -1,0 +1,73 @@
+<div id="loginModal" class="modal show" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+
+                <h1 class="text-center">Login</h1>
+            </div>
+            <div class="modal-body">
+
+                {!! Form::open(array('route'=>'sessions.store', 'class'=> 'form col-md12 center-block')) !!}
+                        <!-- <form class="form col-md-12 center-block"> -->
+                <div class="form-group">
+                    {!! Form::text('email', null, ['class' => 'form-control input-lg', 'placeholder'=>'Email'] )!!}
+                            <!--   <input type="text" class="form-control input-lg" placeholder="Email">
+             -->
+                </div>
+                <div class="form-group">
+                    {!! Form::password('password', ['class' => 'form-control input-lg', 'placeholder'=>'Password'] )!!}
+                            <!-- <input type="password" class="form-control input-lg" placeholder="Password"> -->
+                </div>
+                <div class="form-group">
+                    {!! Form::submit('Sign In', ['class'=>'btn btn-primary btn-lg btn-block']) !!}
+                            <!-- <button class="btn btn-primary btn-lg btn-block">Sign In</button> -->
+                    <span class="pull-right"><a href="#">Register</a></span><span><a href="#">Need help?</a></span>
+                </div>
+                <!--  </form> -->
+                {!! Form::close() !!}
+            </div>
+            <div class="modal-footer">
+                <div class="col-md-12">
+                    <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+$2y$10$ouW0xcytc5RPzBx9SuwACOzo.l20gcI7KYPJqLOgfWp9HM0Fg2qcC
+
+{{--<h1>This is homepage</h1>--}}
+    {{--@extends('layouts.image-slider')--}}
+{{--<div>--}}
+    {{--<div id="MainDiv">--}}
+        {{--<img src="/bootstrap/img/slider/Image1.jpg" alt="About Us" id="MainImage" width="800" height="600"/>--}}
+        {{--<div id="child">--}}
+            {{--<img id="Next" src="/bootstrap/img/slider/right-arrow.png" class="img-responsive NextButton"/>--}}
+            {{--<img id="Previous" src="/bootstrap/img/slider/left-arrow.png" class="img-responsive PreButton"/>--}}
+        {{--</div>--}}
+    {{--</div>--}}
+    {{--<div id="slider">--}}
+        {{--<ul class="slides">--}}
+            {{--<li class="slide">--}}
+                {{--<img src="/bootstrap/img/slider/Image1.jpg" alt="Image 1" width="200"/>--}}
+            {{--</li>--}}
+            {{--<li class="slide">--}}
+                {{--<img src="/bootstrap/img/slider/Image2.jpg" alt="Image 2" width="200"/>--}}
+            {{--</li>--}}
+            {{--<li class="slide">--}}
+                {{--<img src="/bootstrap/img/slider/Image3.jpg" alt="Image 3" width="200"/>--}}
+            {{--</li>--}}
+            {{--<li class="slide">--}}
+                {{--<img src="/bootstrap/img/slider/Image4.jpg" alt="Image 4" width="200"/>--}}
+            {{--</li>--}}
+            {{--<li class="slide">--}}
+                {{--<img src="/bootstrap/img/slider/Image5.jpg" alt="Image 5" width="200"/>--}}
+            {{--</li>--}}
+            {{--<li class="slide">--}}
+                {{--<img src="/bootstrap/img/slider/Image6.jpg" alt="Image 6" width="200"/>--}}
+            {{--</li>--}}
+        {{--</ul>--}}
+    {{--</div>--}}
+{{--</div>--}}
+{{--</div>--}}

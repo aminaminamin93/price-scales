@@ -1,0 +1,81 @@
+<table class="table">
+  @foreach($favorites as $favorite)
+
+
+    <tr>
+      <td style="width:250px">
+        <div>
+          {!! Html::image('/images/products/'.strtolower($favorite->product->product_brand).'/'.$favorite->product->picture_link ,'alt', array( 'width'=>'200') ) !!}
+        </div>
+
+      </td>
+      <td>
+        <table style="float:left; ">
+          <tr>
+            <th>{!!$favorite->product->product_name !!}</th>
+
+          </tr>
+          <tr><td>RM {!!number_format($favorite->product->product_price, 2) !!}</td></tr>
+          <tr>
+            <td></td>
+          </tr>
+          <tr>
+            <td>
+              <?php
+              $star_number = $favorite->product->product_rating;
+
+              if(strpos($star_number ,'.')){
+                $float = 1;
+              }else{
+                $float = 0;
+              }
+
+              $floor_number = floor($star_number);
+              ?>
+
+              @for($i=0; $i<$floor_number; $i++)
+
+                <i class="fa fa-star"></i>
+              @endfor
+
+              @if($float == 1)
+                <i class="fa fa-star-half-o"></i>
+                @for($i=0; $i<(4-$floor_number); $i++)
+                  <i class="fa fa-star-o"></i>
+                @endfor
+              @else
+                @for($i=0; $i<(5-$floor_number); $i++)
+                  <i class="fa fa-star-o"></i>
+                @endfor
+              @endif
+              <span>&nbsp;</span>
+              <small>{!! $favorite->product->product_reviews !!} Reviews</small>
+            </td>
+          </tr>
+          <tr>
+            <td></td>
+          </tr>
+          <tr>
+            <td>
+              Manufacturer&nbsp;&nbsp;:&nbsp;&nbsp;{!! $favorite->product->product_brand !!}
+            </td>
+          </tr>
+
+          <tr>
+
+
+          </tr>
+        </table>
+      </td>
+    {{--</tr>--}}
+    {{--<tr>--}}
+    {{--<td></td>--}}
+    {{--<td valign="bottom">--}}
+
+    {{--{!! Html::link('product/edit/'.$favorite->product->id , 'Edit', ['class'=>'btn btn-warning btn-xs']) !!}--}}
+    {{--{!! Html::link('product/delete/'.$favorite->product->id , 'Delete', ['class'=>'btn btn-danger btn-xs']) !!}--}}
+    {{--</td>--}}
+    {{--</tr>--}}
+
+  @endforeach
+</table>
