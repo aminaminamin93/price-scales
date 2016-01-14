@@ -121,9 +121,17 @@ class AdminController extends Controller
             // }
     }
 
-    public function create()
+    public function save(Request $request)
     {
-        //
+        
+        if( $request->isXmlHttpRequest())
+        {
+            if($request->get('data')){
+                return $request->get('data');
+            }else{
+                return "fdsfsdfd";
+            }
+        }
     }
 
     /**

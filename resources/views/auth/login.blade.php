@@ -30,14 +30,7 @@
                     {!! Form::password('password',['class'=>'form-control', 'placeholder'=>'Password']) !!}
 
                 </div>
-                <span class="help-block"></span>
-                <div class="input-group">
-                  <div style="margin-left:20px">
-                    <label class="checkbox">
-                      <input type="checkbox" value="newsletter" checked>Subscbe Newsletter
-                    </label>
-                  </div>
-                </div>
+                
 
 
 

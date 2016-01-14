@@ -5,11 +5,12 @@
   <input type="hidden" id="_product_id" name="_product_id" value="{!! $products->id !!}" ng-model="products.id">
   <div class="single-product-details">
     <div class="row">
-      <div class="col-md-9" style="	border: 1px solid #D8D8D8;border-radius:5px; padding:20px">
-        <div class="row">
-          <div class="" style="margin-left:20px"><h2>{!! $products->product_name !!}</h2></div>
-        </div>
+      <div class="col-md-7" style="	border: 1px solid #D8D8D8;border-radius:5px; padding:20px">
+
         <div class="col-md-6" style="	border: 1px solid #D8D8D8;border-radius:5px; padding:20px; margin-left:10px">
+          <div class="row">
+            <div class="" style="margin-left:20px"><h2>{!! $products->product_name !!}</h2></div>
+          </div>
           <fieldset>
             <legend><h3>Product Details</h3></legend>
             <div class="product-details-price">
@@ -28,25 +29,24 @@
               <div class="" style="display: inline-block;"><p>{!! $products->condition_title !!}</p></div>
             </div>
             <div class="product-action">
-              <div class="inline-block-custom">
-                <a href="{!! $products->shopper_link !!}" name="btn-visit-store" class="btn btn-primary btn-md">Visit Store</a>
-              </div>
-              <div class="inline-block-custom">
-                <a href="" name="btn-visit-store" class="btn btn-primary btn-md">Favorite</a>
-              </div>
+                <div style="margin-left:10px;margin-top:10px;bottom: 0;">
+                    <a href="{!! $products->shopper_link !!}" class="btn btn-warning btn-xs" style="width:40%;"><i class="fa fa-shopping-cart"></i> Visit Store</a>
+
+                    <a href="/product/favorite/{!! $products->id !!}" class="btn btn-primary btn-xs" style="width:40%;"><span class="glyphicon glyphicon-heart"></span> Favorite</a>
+                </div>
 
             </div>
           </fieldset>
 
         </div>
-        <!-- <div class="col-md-5" style="	border: 1px solid #D8D8D8;border-radius:5px; padding:20px; margin-left:10px;">
+        <div class="col-md-5" style="	border: 1px solid #D8D8D8;border-radius:5px; padding:20px; margin-left:10px;">
           <fieldset>
             <legend><h3>Images</h3></legend>
-            <div class="img-product">
+            <div class="img-compare-product">
               <img src="{!! $products->picture_link !!}" alt="" class="img-product-full"/>
             </div>
             <fieldset>
-        </div> -->
+        </div>
       </div>
 
     </div>
@@ -60,16 +60,13 @@
               @foreach($compareProducts as $compareProduct)
                 <tr>
                     <td>{!! $compareProduct->retailer_name !!}</td><td>{!! $compareProduct->product_name !!}</td><td>{!! $compareProduct->condition_title !!}</td><td>RM {!! $compareProduct->product_price !!}</td>
-                    <td>{!! Html::link($compareProduct->shopper_link , 'Visit Store', array('class'=>'btn btn-xs btn-warning btn-block')) !!}</td>
+                    <td>
+                      <a href="{{ $compareProduct->shopper_link }}" class="btn btn-warning btn-xs"><i class="fa fa-shopping-cart"></i> Visit Store</a>
+
+                    </td>
+
                 </tr>
-                <tr>
-                    <td>{!! $compareProduct->retailer_name !!}</td><td>{!! $compareProduct->product_name !!}</td><td>{!! $compareProduct->condition_title !!}</td><td>{!! $compareProduct->product_price !!}</td>
-                    <td>{!! Html::link($compareProduct->shopper_link , 'Visit Store', array('class'=>'btn btn-xs btn-warning btn-block')) !!}</td>
-                </tr>
-                <tr>
-                    <td>{!! $compareProduct->retailer_name !!}</td><td>{!! $compareProduct->product_name !!}</td><td>{!! $compareProduct->condition_title !!}</td><td>{!! $compareProduct->product_price !!}</td>
-                    <td>{!! Html::link($compareProduct->shopper_link , 'Visit Store', array('class'=>'btn btn-xs btn-warning btn-block')) !!}</td>
-                </tr>
+
               @endforeach
             </table>
           </div>
@@ -83,14 +80,25 @@
           <div class="table table-responsive">
             <table class="table table-striped">
               <tr>
-                <td colspan="5"><input type="text" ng-model="search" class="form-control" placeholder="Filter Here:Price|Name|Condition"/></td>
+                <td colspan="4"><input type="text" ng-model="search" class="form-control" placeholder="Filter Here:Price|Name|Condition"/></td>
                 <td>
                   <a href="" ng-click="sortType = 'product_price'; sortReverse = !sortReverse">SortBy Price  <i class="fa fa-sort"></i></a>
                 </td>
               </tr>
+              <tr>
+                <th><b>No</b></th><th><b>Product Name</b></th><th><b>Condition</b></th><th><b>Price</b></th><th></th>
+              </tr>
               <tr ng-repeat="related in relateds |orderBy:sortType:sortReverse| filter:search" ng-show="relateds">
                 <td>@{{$index+1}}</td><td><a href="/product/details/@{{related.id}}" />@{{ related.product_name }}</td><td>@{{ related.condition_title }}</td><td>RM @{{ related.product_price }}</td>
-                <td>{!! Html::link($compareProduct->shopper_link , 'Visit Store', array('class'=>'btn btn-xs btn-warning btn-block', 'target'=>'_blank')) !!}</td>
+                <td>
+
+                  <div style="margin-left:10px;margin-top:10px;bottom: 0;">
+                      <a href="@{{ related.shopper_link }}" class="btn btn-warning btn-xs"><i class="fa fa-shopping-cart"></i> Visit Store</a>
+
+                      <a href="/product/compare/@{{ related.id }}" class="btn btn-success btn-xs"><span class="glyphicon glyphicon-heart"></span> Compare</a>
+                  </div>
+                </td>
+                <!-- <td>{!! Html::link('@{{ related.product_name }}' , 'Visit Store', array('class'=>'btn btn-xs btn-warning btn-block', 'target'=>'_blank')) !!}</td> -->
               </tr>
               <tr>
                 <td colspan="6" ng-show="!relateds">No Products Result</td>

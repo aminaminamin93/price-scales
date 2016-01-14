@@ -19,54 +19,79 @@ class PdfParserController extends Controller
         // ->select('retailers.id','products.product_name','products.product_price','products.product_brand','products.product_rating','products.product_reviews','products.picture_link','products.shopper_link','products.category_id', 'retailers.picture_link as retailer_picture' )
         ->join('pdf', 'retailers.id', '=', 'pdf.retailer_id')
         ->join('crawler', 'pdf.crawler_id', '=', 'crawler.id')
-        ->select('pdf.id','pdf.pricelist_file','pdf.crawler_id', 'pdf.retailer_id','retailers.retailer_name', 'retailers.retailer_email', 'retailers.retailer_site')
+        ->select('pdf.id as pdf_id','pdf.pricelist_file','pdf.crawler_id', 'pdf.retailer_id','retailers.retailer_name', 'retailers.retailer_email', 'retailers.retailer_site')
         ->get();
 
     return $pdfs;
 
+  }
+
+  public function saveCrawler(Request $request)
+  {
+
+  }
+  public function deleteCrawler(Request $request){
+    return "delete crawler successfully";
   }
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function StartExtractPdf(Request $request, $pdfid, $retailername){
-        $pdfs = \DB::table('pdf')
-          ->where('id','=', $pdfid)->get();
+    public function StartExtractPdf(Request $request){
 
-        foreach ($pdfs as $pdf_url) {
+        $pdfs = \DB::table('pdf')
+          ->join('retailers', 'pdf.retailer_id','=', 'retailers.id')
+          ->where('pdf.id','=', $request->get('id'))
+          ->select('pdf.*', 'retailers.retailer_name')
+          ->get();
+
+        foreach ($pdfs as $pdf) {
           
+        
           $parser = new \Smalot\PdfParser\Parser();
-          $pdf    = $parser->parseFile($pdf_url->pricelist_file);  //method called from Parser.php
+          $pdffile    = $parser->parseFile($pdf->pricelist_file);  //method called from Parser.php
           // $text = $pdf->getSectionsText();
-          $text = $pdf->getText(); //method called from Object.php
+          $text = $pdffile->getText(); //method called from Object.php
 
           $toReplace = array('&', ',', '"','\r\n','Price','Q uad', 'M icro', 'M aximus','D D R3');
           $with = array('-','_','inch',' ', 'Price ', 'Quad', 'Micro','Maximus', 'DDR3');
           $string  =  str_replace($toReplace, $with, $text);
           $new = trim(preg_replace('/\n/', ' ', $string));
-          $filename = strtolower($retailername)."-pricelist-pdf.txt";
+          $filename = strtolower($pdf->retailer_name)."-pricelist-pdf.txt";
 
           $myfile = fopen(public_path()."/file/".$filename, "w") or die("Unable to open file!");
 
 
           fwrite($myfile, $new);
           fclose($myfile);
-          if(  $myfile) return '<div class="alert alert-success">successfully extract data from pdf</div>';
+          if(  $myfile) return 'successfully extract data from pdf';
         }
 
-        return '<div class="alert alert-danger">failed to extract data from pdf</div>';
+        // return '<div class="alert alert-danger">failed to extract data from pdf</div>';
 
     }
 
-    public function ProcessDataPdf($retailer){
+    public function ProcessDataPdf(Request $request){
 
-      // return $retailer;
+      $pdfs = \DB::table('pdf')
+          ->join('retailers', 'pdf.retailer_id','=', 'retailers.id')
+          ->where('pdf.id','=', $request->get('id'))
+          ->select('pdf.*', 'retailers.retailer_name')
+          ->get();
+
+      foreach ($pdfs as $pdf) {
+        $retailer = strtolower($pdf->retailer_name);
+      }
+
       if(strcasecmp( $retailer, 'cycom' ) == 0){
-        return $this->cycomExtractor($retailer);
+        // return $this->cycomExtractor($retailer);
+
+        return "this is ". $retailer;
       }
       else{
-        return $this->czoneExtractor($retailer);
+        return "this is ". $retailer;
+        // return $this->czoneExtractor($retailer);
       }
 
     }
@@ -174,7 +199,7 @@ class PdfParserController extends Controller
             
         }
 
-        echo "<div class='alert alert-success'>Successfully process pdf data</div>";
+        
     }
 
     private function czoneExtractor($retailer){

@@ -15,36 +15,19 @@
                         <a href="/">Home</a>
                     </li>
                     <li class="li-category"><a id="li-category">Category</a>
-                        <div style=" background-color: #D0F1FA; ">
-                        <div class="view-category" >
-                        <table>
-
-                         </table>
-                        </div>
-                        </div>
 
                     </li>
                     <li class="li-brand"><a id="li-brand">Brand</a>
-                        <div style=" background-color: #D0F1FA; ">
-                        <div class="view-brand" >
-                          <table>
-
-                           </table>
-                        </div>
-                        </div>
-
                     </li>
 
-                     <li><a href="contact">Contact</a></li>
+                     <li><a href="" ng-click="contactUs($event)">Contact Us</a></li>
 
                 </ul>
                 <form class="navbar-form navbar-right" role="search">
                   <div class="inline-block-custom">
                     <input type="text" class="form-control" placeholder="Search" style="min-width:100%" ng-model="searchProducts" ng-keyup="departmentSearch(searchProducts)">
                   </div>
-                  <div class="inline-block-custom">
-                      <a class="btn btn-default btn-xs-block"><span class="glyphicon glyphicon-search"></span></a>
-                  </div>
+
 
                 </form>
 

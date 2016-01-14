@@ -27,4 +27,15 @@ class testerController extends Controller
         }
 
     }
+
+    public function angularAjax(Request $request){
+        if( $request->isXmlHttpRequest())
+        {
+            if($request->get('pdf')){
+                return json_encode($request->get('pdf'));
+            }else{
+                return "null";
+            }
+        }
+    }
 }

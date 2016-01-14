@@ -123,7 +123,10 @@
 
    </div>
 </div> <!--end of container-->
+<div id="footer-area">
 @extends('layouts.footer')
+</div>
+
 
 </body>
 

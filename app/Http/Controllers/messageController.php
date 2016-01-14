@@ -38,4 +38,21 @@ class messageController extends Controller
         ->get();
       return $mails;
     }
+
+    public function contactUs(Request $request){
+      $request->get('subject');
+
+      $users = DB::table('users')
+        ->where('user_email','=',$request->get('email'))
+        ->first();
+
+      if($users){
+          return array('alert_type'=>'alert-success', 'alert_message'=>'Your message have been sent', 'action'=>'login');
+      }else{
+          return array('alert_type'=>'alert-danger', 'alert_message'=>'Your email not register with Us.', 'action'=>'register');
+      }
+
+
+
+    }
 }

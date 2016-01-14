@@ -23,9 +23,10 @@
                     <ul>
                         <li><a href="#">My account</a></li>
                         <li><a href="#">My Favorite</a></li>
-                        <li><a href="#">Contact Us</a></li>
-                        <li><a href="#">Home</a></li>
-                        <li><a href="#">Login</a></li>
+                        <li><a href="/" ng-click="contactUs($event)">Contact Us</a></li>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="auth/login">Login</a></li>
+                        <li><a href="auth/register">Register</a></li>
                     </ul>
                 </div>
             </div>
@@ -64,16 +65,54 @@
                     </div>
                 </div>
             </div>
+
+        </div>
+        <div id="contact-form"></div>
+        <div class="row" style="margin-top:30px;" ng-show="contactus">
+          <br>
+          <br>
+          <h3>Please Contact Us</h3>
+          <div class="alert @{{ message.alert_type }}" ng-show="message.alert_message" id="alert">
+            <p>
+              @{{ message.alert_message }}
+              <span ng-show="message.action === 'register'">Please <a href="/auth/@{{ message.action }}">register</a> to talk with Us, Thank You.</span>
+              <span ng-show="message.action === 'login'">You can <a href="/auth/@{{ message.action }}">login</a> to continue, Thank You.</span>
+            </p>
+          </div>
+          <div class="contact-form" style="width:60%;" >
+            {!! Form::open(array('url'=>'/', 'method'=>'POST' ,'ng-submit'=>'sentMessage($event)')) !!}
+            <div class="contact-email" style="width:60%;">
+              {!! Form::text('email', null, array('class'=>'form-control', 'placeholder'=>'Your Email', 'ng-model'=>'message.email')) !!}
+            </div>
+            <br/>
+            <div class="contact-subject">
+              {!! Form::text('subject', null, array('class'=>'form-control', 'placeholder'=>'Subject', 'ng-model'=>'message.subject')) !!}
+            </div>
+            <br/>
+            <div class="contact-content">
+              {!! Form::textarea('context', null, array('class'=>'form-control', "placeholder"=>"what's your message",'ng-model'=>'message.content')) !!}
+            </div>
+            <br/>
+            <div class="contact-action">
+              <div class="inline-block-custom">
+                  {!! Form::submit('Send', array('class'=>'btn btn-sm btn-success') ) !!}
+              </div>
+              <div class="inline-block-custom">
+                  {!! Form::reset('Reset', array('class'=>'btn btn-sm btn-warning') ) !!}
+              </div>
+
+            </div>
+            {!! Form::close() !!}
+          </div>
         </div>
     </div>
 </div> <!-- End footer top area -->
-
 <div class="footer-bottom-area">
     <div class="container">
         <div class="row">
             <div class="col-md-8">
                 <div class="copyright">
-                    <p>&copy; 2015 uCommerce. All Rights Reserved. <a href="http://www.freshdesignweb.com" target="_blank">freshDesignweb.com</a></p>
+                    <p>&copy; 2015 PScales. All Rights Reserved. <a href="http://www.freshdesignweb.com" target="_blank"></a></p>
                 </div>
             </div>
 

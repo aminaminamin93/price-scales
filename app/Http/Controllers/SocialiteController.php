@@ -13,6 +13,7 @@ use App\User;
 class SocialiteController extends Controller implements AuthenticateUserListener
 {
 
+
   	public function login($provider, AuthenticateUser $authenticateUser, Request $request){
 
       return $authenticateUser->execute($request->has('code'), $this, $provider);

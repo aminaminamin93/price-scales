@@ -12,6 +12,7 @@
                     <li><a href="/auth/register"><i class="fa fa-user"></i>Register</a></li>
                 @endif
                 <li><a href="/favorite/view" style="text-decoration:none;"><i class="fa fa-heart"></i> Favorites</a></li>
+              
 
 
             </ul>

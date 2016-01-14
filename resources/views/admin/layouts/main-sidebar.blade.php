@@ -32,7 +32,6 @@
 			<li class="active"><a href="#"><i class="fa fa-home"></i> <span>Dashboard</span></li>
 			<!-- Optionally, you can add icons to the links -->
 			<li><a href="#"><i class="fa fa-envelope"></i> <span>MailBox</span></a></li>
-			<li><a href="#"><i class="fa fa-link"></i> <span>Another Link</span></a></li>
 			<li class="treeview">
 				<a href="#"><i class="fa fa-link"></i> <span>USER MANAGEMENT</span> <i class="fa fa-angle-left pull-right"></i></a>
 				<ul class="treeview-menu">
@@ -41,13 +40,13 @@
 					<li><a href="#">ADMIN</a></li>
 				</ul>
 			</li>
-			<li class="treeview">
+			<!-- <li class="treeview">
 				<a href="#"><i class="fa fa-link"></i> <span>Multilevel</span> <i class="fa fa-angle-left pull-right"></i></a>
 				<ul class="treeview-menu">
 					<li><a href="/view/products">PRODUCTS</a></li>
 					<li><a href="#">Link in level 2</a></li>
 				</ul>
-			</li>
+			</li> -->
 			<li id="li-logs_setting">
 				<a href="/admin/logs_setting"><span class="glyphicon glyphicon-cog"></span><span>Logs & Settings</span></a>
 			</li>

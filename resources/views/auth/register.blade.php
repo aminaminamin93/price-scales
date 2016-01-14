@@ -39,6 +39,15 @@
                 </div>
                 @if($errors->has('password_confirmation')) <div class="alert alert-danger alert-dimissable"><span class="">{!! $errors->first('password_confirmation') !!}</span></div>@endif
                 <span class="help-block"></span>
+                <div class="input-group">
+                  <div style="margin-left:20px">
+                    <label class="checkbox">
+                      <input type="checkbox" value="newsletter" checked>Subscbe Newsletter
+                    </label>
+                  </div>
+                </div>
+                
+                <span class="help-block"></span>
                 {!! Form::submit('Register', ['class'=>'btn btn-lg btn-primary btn-block']) !!}
                 {{--</form>--}}
                 {!! Form::close() !!}

@@ -8,17 +8,17 @@ hr.hr-deparment-area{
 	border:1px solid #CEECF5;
 
 }
-#brands div:hover{
+#department-brand-area div:hover{
   background:#CEECF5;
   cursor:pointer;
 }
 
-#brands div{
+#department-brand-area div{
    padding-top:20px;
    padding-bottom:20px;
    border:1px solid #CEECF5;"
 }
-#brands h3{
+#department-brand-area h3{
   font-size:1.2em;
   padding:10px;
 	background:#CEECF5;
@@ -1300,15 +1300,20 @@ div.cart-collaterals ul.products li.product:hover .add_to_cart_button{background
 .img-product-thumbs{
   max-width: auto;
   min-height:250px ;
-	/*max-height:*/
   max-height:250px ;
-	/*overflow-x: hidden;*/
-  /*max-height:250px ;*/
-    /*max-width:200px;
-    max-height:250px;*/
+}
+.img-product-thumbs-list{
+  max-width: 100px;
+  min-height:150px ;
+  max-height:150px ;
+	overflow-y: hidden;
 }
 .img-product{
 		width: 80%;
+		height: auto;
+}
+.img-compare-product{
+		width: 100%;
 		height: auto;
 }
 .img-product-full{
@@ -1572,6 +1577,20 @@ span.more-text.show {
 	padding: 25px;
 	margin-bottom: 50px;
 }
+.product-image-list{
+	min-width: 150;
+	min-height: 150px;
+	max-width: 150px;
+	max-height: 150px;
+	overflow-x: hidden;
+}
+/*.product-image-list img{
+	min-width: 150;
+	min-height: 150px;
+	max-width: 150;
+	max-height: 150px;
+	overflow: hidden;
+}*/
 .product-image-thumbnail{
 	z-index: 10000;
 	position: absolute;
@@ -1622,9 +1641,14 @@ span.more-text.show {
 	margin-left:10px;
 	margin-right:10px;
 }
+.product-department{
+	padding-left: 50px;
+	padding-right: 50px;
+}
 .product-department :hover{
-	background:#CEE3F6;
-	cursor:pointer;
+	/*background:#CEE3F6;
+	z-index: -1000px;*/
+
 }
 
 .product-search-area{

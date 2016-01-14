@@ -24,6 +24,18 @@ use App\Pdf;
 use App\PriceList;
 use App\Website;
 
+
+Route::get('angularAjax', function(){
+    return \View::make('/admin/testing/testing')->with('title','Angular Ajax');
+});
+Route::post('/angularAjax/submit/',array('before'=>'VerifyCsrfToken', 'uses'=>'testerController@angularAjax'));
+
+
+Route::get('/processCrawler/test/{id}', function($id){
+    return $id;
+});
+
+
 Route::get('testCrawler', 'crawlEbayController@index');
 Route::get('testLoader', function(){
     return View::make('loader')->with('title', 'Loader');
@@ -84,19 +96,14 @@ Route::post('/reset', 'sessionsController@email');
 Route::post('/password/recover/', 'sessionsController@recover');
 Route::get('/auth/recover_password/{provider}', 'sessionsController@recoverPassword');
 Route::post('/create', 'sessionsController@create');
-
-
-
-
-
-
-Route::get('profile',array('middleware' => 'auth', function(){
-    return View::make('member/profile')
-        ->with('title', 'Profile');
-}));
-
+Route::post('/contact/sending', 'messageController@contactUs');
+Route::get('myAccount',array('middleware'=>'auth', 'uses'=>'sessionsController@myAccount'));
 
 Route::get('/product/compare/{id}', 'productsController@view_comparison');
+Route::post('/product/comparetable/', 'productsController@comparetable');
+// Route::post('/product/comparetable/', function(Request $request){
+//
+// });
 Route::get('/product/details/{id}', 'productsController@details');
 Route::get('/product/related/{id}', 'productsController@related');
 Route::get('/product/relatedCompare/{id}', 'productsController@relatedCompare');  //call from ajax angular.js
@@ -118,27 +125,15 @@ Route::get('/products/topViewed', 'productsController@topViewed');
 Route::get('/products/recentlyViewed', 'productsController@recentlyViewed');
 Route::get('/products/newAdded', 'productsController@newAdded');
 
-Route::get('/product/department/category/{id}', 'categoryController@category');
-Route::get('/product/department/brand/{id}', 'brandController@brand');
+Route::get('/product/department/allcategory/', 'categoryController@allcategory');
+Route::get('/product/department/allbrand/', 'brandController@allbrand');
+Route::post('/product/department/category/', 'categoryController@category');
+Route::post('/product/department/brand/', 'brandController@brand');
+
 Route::get('/product/department/all/{data}', 'productsController@products');
-//testing
-// Route::get('user', function(){
-//     $users = User::all();
-//     return View::make('viewUser')->with('users', $users);
-// });
-// use App\Role;
-// Route::get('/role/{id}', function ($id){
-//     $role = Role::where('id', $id)->first();
-
-//     return View::make('role')->with('roles', $role);
-// });
 
 
-//route for member
 
-Route::get('account/details/{id}', function($id){
-    return View::make('member/memberAccount')->with('title', 'My Account');
-});
 //Route::
 Route::post('product/form/search', 'productsController@search');
 
@@ -202,6 +197,7 @@ Route::get('/admin/logs_setting', array('middleware'=>'administrator', 'uses'=>'
 Route::get('/crawler/list', array('middleware'=>'administrator', 'uses'=>'AdminController@crawler'));
 Route::get('/admin/logout', array('middleware' => 'administrator', 'uses'=>'AdminController@destroy'));
 Route::get('/settings-general', array('middleware' =>'administrator' , 'uses'=>'AdminController@generalSettings' ));
+Route::post('/admin/generalsettings', array('middleware' =>'administrator' , 'uses'=>'AdminController@save'));
 Route::get('admin/profile/{id}' , array('middleware'=> 'administrator', 'uses'=>'AdminController@profile'));
 
 
@@ -254,6 +250,17 @@ Route::post('searchFulltext', 'productsController@searchFulltext');
 Route::get('/list-crawler-pdf',  array('middleware'=>'administrator', 'uses'=>'PdfParserController@listPdf'));
 Route::get('/crawler/start/pdf/{pricelist}/{retailername}',  array('middleware'=>'administrator', 'uses'=>'PdfParserController@StartExtractPdf'));
 Route::get('/crawler/processdata/pdf/{retailername}', array('middleware'=>'administrator', 'uses'=>'PdfParserController@ProcessDataPdf'));
+
+//test pdfcrawler
+
+Route::post('/pdfcrawler/extract/', array('middleware' => 'administrator','before'=>'VerifyCsrfToken', 'uses'=>'PdfParserController@StartExtractPdf'));
+Route::post('/pdfcrawler/process/', array('middleware' => 'administrator', 'before'=>'VerifyCsrfToken','uses'=>'PdfParserController@ProcessDataPdf'));
+Route::post('/pdfcrawler/saveCrawler/', array('middleware' => 'administrator', 'before'=>'VerifyCsrfToken','uses'=>'PdfParserController@saveCrawler'));
+Route::post('/pdfcrawler/deleteCrawler/',array('middleware' => 'administrator', 'before'=>'VerifyCsrfToken','uses'=>'PdfParserController@deleteCrawler'));
+//end
+
+
+
 Route::get('/list-crawler-website',  array('middleware'=>'administrator', 'uses'=>'CrawlerController@listWebsiteCrawler'));
 Route::get('/system-logs', array('middleware'=>'administrator', 'uses'=>'AdminController@systemlogs'));
 

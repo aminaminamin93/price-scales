@@ -136,57 +136,27 @@ class productsController extends Controller
           ->join('brand','products.brand_id','=','brand.id')
           // ->whereRaw('MATCH(product_name) AGAINST(? IN BOOLEAN MODE)',array($product->product_name))
           ->where('products.id','<>',$product->id)
-          ->where('brand_id', '=', $product->brand_id)
-          ->where('category_id','=', $product->category_id)
-          ->select( 'products.*',
-                    'retailers.retailer_name','retailers.retailer_site','retailers.picture_link',
-                    'category.category_title','brand.brand_title','condition.condition_title'
-                  )
+          ->where('products.brand_id', '=', $product->brand_id)
+
           ->get();
 
-          // dd($products);
-        // $other_product = Products::where('category_id', $product->category_id)
-        //     ->where('id', '!=' , $product->id )
-        //     ->where('brand_id', '=', $product->brand_id)
-        //     ->orderBy('product_price', 'product_rating', 'ASD')
-        //     ->get();
 
-//
-//        $product = \DB::table('products')
-//            ->select('products.id','products.product_name','products.product_price','products.product_brand','products.product_rating','products.product_reviews','products.picture_link','products.shopper_link','products.category_id', 'retailers.picture_link as retailer_picture' )
-//            ->join('enrollment', 'products.id', '=', 'enrollment.product_id')
-//            ->join('retailers', 'enrollment.retailer_id', '=', 'retailers.id')
-//            ->where('id', '!=' , $product->id )
-//            ->where('products.product_brand', 'LIKE', $product->product_brand)
-//            ->where('products.category_id', '=', $product->category_id)
-//
-//
-//            ->orderBy('product_price', 'product_rating', 'ASD')
-//            ->get();
-
-        $star_number = 3.5;
-        $floor = floor($star_number);
-
-        //for full blank count
-        $blank_star = (5 - $floor );
-       //for half star count
-        if(is_float($star_number)) {
-            $half_star = 1;
-            $full_star = $floor - 1;
-        }else {
-            $half_star = 0;
-            $full_star = $floor;
-        }
-        // dd($products);
         return \View::make('product/compareProduct')
             ->with('title', $product->product_name)
             ->with('products', $product)
-            ->with('compareProducts', $products)
-            ->with('fullstar', $full_star)
-            ->with('halfstar', $half_star)
-            ->with('blankstar', $blank_star);
+            ->with('compareProducts', $products);
     }
-
+    public function comparetable(Request $request){
+      return $request->get('comparedid');
+      // if( $request->isXmlHttpRequest())
+      //   {
+      //       if($request->get('id')){
+      //           return $request->get('id');
+      //       }else{
+      //           return "fdsfsdfd";
+      //       }
+      //   }
+    }
     /**
      * Show the form for creating a new resource.
      *
@@ -213,30 +183,27 @@ class productsController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
 
-    }
-    public function searchByForm(){
-      $searchText = Input::get('searchText');
-      $brand = Input::get('brand');
-      $category = Input::get('category');
-      $condition = Input::get('condition');
-      $priceLow = Input::get('priceLow');
-      $priceHigh = Input::get('priceHigh');
+    public function searchByForm(Request $request){
+
+      $brand = $request->get('brand');
+      $category = $request->get('category');
+      $condition = $request->get('condition');
 
       $products = \DB::table('products')
-        ->whereRaw('MATCH(product_name) AGAINST(? IN BOOLEAN MODE)', array($searchText))
-        ->where('brand_id','=',$brand)
-        ->where('category_id','=',$category)
-        ->where('condition_id','=',$condition)
-        ->whereBetween('product_price',[$priceLow,$priceHigh])
+
+        ->where(function($query) use ($category, $brand, $condition) {
+          $category == 0 ? $query->where('category_id', '<>', $category) : $query->where('category_id','=', $category);
+          $brand == 0 ? $query->where('brand_id', '<>', $brand) : $query->where('brand_id','=', $brand);
+          $condition == 0 ? $query->where('condition_id', '<>', $condition) : $query->where('condition_id','=', $condition);
+        })
+        ->orWhereRaw('MATCH(product_name) AGAINST(? IN BOOLEAN MODE)', array($request->get('searchText')))
+        ->whereBetween('product_price',[$request->get('priceLow'),$request->get('priceHigh')])
         ->get();
 
-
-      return $products;
-      // return \DB::table('products')->where('brand_id','=',Input::get('brand'))->get();
+        return $products;
     }
+
     public function search(Request $request){
         $search = $request['search'];
         $brand = strtolower($request['brand']);
@@ -332,70 +299,6 @@ class productsController extends Controller
         return \View::make('/product/baseOnRetailer')->with('products' , $product)->with('title', $retailer->id.'&#39; Products ');
     }
 
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
-
-    public function productCollection(){
-
-        $products = Products::all();
-        $collection = [];
-
-        foreach ($products as $product) {
-
-            // $neproducts = Products::where('product_name', 'LIKE', '%'.$explode[2].'%')
-            //                         // ->where('id', '<>', $product->id)
-            //                         ->get();
-
-            // foreach ($neproducts as $prow) {
-            //     $collection[] =  $prow->product_name;
-            // }
-            // dd($neproducts->product_name);
-                // if($neproducts){
-                //     $newarray[] = array();
-                //         foreach ($neproducts as $neproduct) {
-                //             $newarray = $neproduct->product_name;
-                //         }
-
-                //     $collection[] = $newarray;
-                // }
-
-
-        }
-
-        // dd($collection);
-    }
     //request from ajax angular....ng-controller=productsController
     public function listAll(){
       $products = \DB::table('products')
@@ -403,11 +306,38 @@ class productsController extends Controller
         ->join('brand','products.brand_id','=', 'brand.id')
         ->join('category','products.category_id','=','category.id')
         ->join('condition', 'products.condition_id','=','condition.id')
-        ->orderBy('products.product_reviews', 'DESC')
-        ->take(8)
+        ->orderBy('created_at', 'ASD')
+        ->take(16)
         ->get();
-
-      return $products;
+        $newarr = array();
+        foreach ($products as $product) {
+          $compareproducts = \DB::table('products')
+            ->select(DB::raw('count(*) as counter'))
+            ->where('id' , '<>', $product->id)
+            ->where('brand_id', '=', $product->brand_id)
+            ->where('category_id','=',$product->category_id)
+            ->whereRaw('MATCH(product_name) AGAINST(? IN BOOLEAN MODE)', array($product->product_name))
+            ->get();
+            foreach ($compareproducts as $compareproduct) {
+              if($compareproduct->counter >= 1){
+                $comparetable = true;
+              }else{
+                $comparetable = false;
+              }
+            }
+          $newarr[] = [ 'id'=>$product->id,
+                        'product_name'=>$product->product_name,
+                        'product_price'=>$product->product_price,
+                        'product_price_temp'=>$product->product_price_temp,
+                        'product_favorite'=>$product->product_favorite,
+                        'product_reviews'=>$product->product_reviews,
+                        'picture_link'=>$product->picture_link,
+                        'shopper_link'=>$product->shopper_link,
+                        'comparetable'=>$comparetable
+                      ];
+        }
+        return $newarr;
+      // return $products;
     }
     public function searchFulltext(){
         $data = \Input::get('search');

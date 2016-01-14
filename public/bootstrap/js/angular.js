@@ -1,21 +1,28 @@
 var app = angular.module('myApp', ['angularUtils.directives.dirPagination','rzModule', 'ui.bootstrap','duScroll'])
 
-// .config(['$httpProvider', function ($httpProvider) {
-//     $httpProvider.defaults.headers.common['Accept'] = 'application/json, text/javascript';
-//     $httpProvider.defaults.headers.common['Content-Type'] = 'application/json; charset=utf-8';
-//     $httpProvider.defaults.headers.common['CSRF-TOKEN'] =     $('meta[name="csrf-token"]').attr('content')
-// }])
 
-.controller('appController',function($scope){
+.config(['$httpProvider', function ($httpProvider) {
+    $httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=utf-8';
+    $httpProvider.defaults.headers.common['X-Requested-With'] = "XMLHttpRequest";
+    $httpProvider.defaults.headers.post['X-CSRF-TOKEN'] = $('meta[name=csrf-token]').attr('content');
+}])
+
+.controller('appController',['$scope','$http','$document',function($scope, $http,$document){
   $scope.$on('LOAD', function(){$scope.loading =true});
   $scope.$on('UNLOAD', function(){$scope.loading =false});
+  $scope.$on('HIDELATESTPRODUCT', function(){$scope.latestproduct = false;});
+  $scope.latestproduct = true;
 
-  // $scope.$on('HIDE1', function(){$scope.hideThis = true});
-  // $scope.$on('HIDE2', function(){
-  //   console.log($scope.departments);
-  // });
 
-})
+  $scope.contactUs = function($event){
+    $scope.contactus = true;
+    $event.preventDefault();
+    var scrollToFooter = angular.element(document.getElementById('contact-form'));
+    $document.scrollToElementAnimated(scrollToFooter);
+  }
+
+
+}])
 .controller('newsletterController', function($scope, $http){
     $scope.$emit('LOAD');
     $scope.newsletter = {};
@@ -42,7 +49,27 @@ var app = angular.module('myApp', ['angularUtils.directives.dirPagination','rzMo
     $scope.maxFootCategories = 5;
       $scope.$emit('UNLOAD');
   });
+  $scope.message = {
+    email: '',
+    subject:'',
+    content:'',
+    alert_type:'',
+    alert_message:'',
+    action: ''
+  }
 
+  $scope.sentMessage = function($event){
+    $event.preventDefault();
+    $http({
+      method  : 'POST',
+      url     : '/contact/sending',
+      data    : $.param($scope.message)
+     })
+      .success(function(response) {
+      $scope.message = response;
+      console.log(response);
+    });
+  }
 
 })
 .controller('departmentController',['$scope','$http','$document', function($scope, $http,$document){
@@ -56,69 +83,97 @@ var app = angular.module('myApp', ['angularUtils.directives.dirPagination','rzMo
   $scope.hideThis = true;
   $scope.$emit('LOAD');
   $http.get('/product/list-category').success(function(response){
-      // function chunk(arr, size) {
-      // var newArr = [];
-      // for (var i=0; i<arr.length; i+=size) {
-      //   newArr.push(arr.slice(i, i+size));
-      // }
-      //   return newArr;
-      // }
-        $scope.$emit('UNLOAD');
       $scope.categories = response;
-  });
-  $http.get('/product/list-brands').success(function(response){
+  }).then(
+    $http.get('/product/list-brands').success(function(response){
       $scope.brands = response;
       $scope.maxbrands = 9;
-      $scope.$emit('UNLOAD');
-  });
 
-  // $http.get('/product/department/category/1').success(function(response){
-  //    $scope.departments = response;
-  //  });
+    })
+  ).then($scope.$emit('UNLOAD'));
+
+
+  $scope.showByList = false;
+  $scope.showByGrid = false;
   var scrollTo = angular.element(document.getElementById('department-area'));
-  $scope.departmentCategory = function(category_id,category_title){
-
+  $scope.departmentCategoryAll = function(){
+    $scope.showByList = true;
+    $scope.showByGrid = false;
     $document.scrollToElementAnimated(scrollTo);
-    $scope.title = category_title+"'s";
-    $http.get('/product/department/category/'+category_id).success(function(response){
-      $scope.hideThis = false;
-      $scope.currentPage = 1;
-      $scope.pageSize = 10;
-      $scope.departments = response;
-
-    });
-
-  }
-
-  $scope.departmentBrand = function(brand_id,brand_title){
-
-    $document.scrollToElementAnimated(scrollTo);
-    $scope.title = brand_title+"'s";
-    $http.get('/product/department/brand/'+brand_id).success(function(response){
+    $scope.title ="All Categories";
+    $http.get('/product/department/allcategory').success(function(response){
+      $scope.$emit('HIDELATESTPRODUCT');
       $scope.hideThis = false;
       $scope.currentPage = 1;
       $scope.pageSize = 10;
       $scope.departments = response;
     });
   }
-
-  $scope.departmentSearch = function(){
-    // alert(query);
-
+  $scope.departmentCategory = function(context){
+    $scope.showByList = true;
+    $scope.showByGrid = false;
     $document.scrollToElementAnimated(scrollTo);
-    // $http.get('/product/department/all/'+query).success(function(response){
-      // $scope.hideThis = false;
-      // $scope.currentPage = 1;
-      // $scope.pageSize = 10;
-      // $scope.departments = response;
-      // console.log(response);
-    // });
+    $scope.title = context.category.category_title+"'s";
+    $http({
+      method  : 'POST',
+      url     : '/product/department/category/',
+      data    : $.param(context.category)
+     })
+      .success(function(response) {
+        $scope.$emit('HIDELATESTPRODUCT');
+        $scope.hideThis = false;
+        $scope.currentPage = 1;
+        $scope.pageSize = 10;
+        $scope.departments = response;
+
+    });
+
+
+  }
+  $scope.departmentBrandAll = function(){
+    $scope.showByList = true;
+    $scope.showByGrid = false;
+    $document.scrollToElementAnimated(scrollTo);
+    $scope.title = "All Brands";
+    $http.get('/product/department/allbrand').success(function(response){
+      $scope.$emit('HIDELATESTPRODUCT');
+      $scope.hideThis = false;
+      $scope.currentPage = 1;
+      $scope.pageSize = 10;
+      $scope.departments = response;
+    });
+
+  }
+  $scope.departmentBrand = function(context){
+    $scope.showByList = true;
+    $scope.showByGrid = false;
+    $document.scrollToElementAnimated(scrollTo);
+    $scope.title = context.brand.brand_title+"'s";
+    $http({
+      method  : 'POST',
+      url     : '/product/department/brand/',
+      data    : $.param(context.brand)
+     })
+      .success(function(response) {
+        $scope.$emit('HIDELATESTPRODUCT');
+        $scope.hideThis = false;
+        $scope.currentPage = 1;
+        $scope.pageSize = 10;
+        $scope.departments = response;
+
+    });
+
   }
 
-  // $scope.hideImage = true;
-  // $scope.showHideImage = function(index){
-  //   $scope.hideImage.index = $scope.hideImage.index ? false : true;
-  // }
+  $scope.changeToGrid = function(){
+    $scope.showByList = false;
+    $scope.showByGrid = true;
+  }
+  $scope.changeToList = function(){
+    $scope.showByList = true;
+    $scope.showByGrid = false;
+  }
+
   $scope.select = function(item) {
     $scope.selected = item
   }
@@ -160,7 +215,8 @@ var app = angular.module('myApp', ['angularUtils.directives.dirPagination','rzMo
   }
   $scope.pageChangeHandler2 = function(num) {
       console.log('meals page changed to ' + num);
-    };
+  }
+
 }])
 .controller('PaginateSearchController', function($scope){
 
@@ -188,45 +244,77 @@ var app = angular.module('myApp', ['angularUtils.directives.dirPagination','rzMo
       $scope.$emit('UNLOAD');
   });
 
-  $scope.search = {};
+  $scope.search = {
+    'brand': 0,
+    'category': 0,
+    'condition':0,
+    'priceLow': 10,
+    'priceHigh': 1000
+  };
   $scope.sliderConfig = { min: 0, max: 10000, step: 2 };
   //
 
-   $scope.search.priceLow = 10;
-   $scope.search.priceHigh = 1000;
 
-
-  $scope.searchProducts = function(event){
-    event.preventDefault();
+  $scope.searchProducts = function($event){
+    $event.preventDefault();
     $scope.searchFormResults ={};
     console.log($scope.search);
     $http({
         url:"/product/search/all",
         method: "POST",
-        data: $scope.search,
-        headers: {'CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')}
+        data: $.param($scope.search)
     }).success(function(response){
         console.log(response);
     });
   }
 
-});
 
-app.controller('productsController', function($scope, $http){
+
+})
+.controller('productsController', function($scope, $http){
     $scope.products = {};
     $scope.$emit('LOAD');
+    $scope.comparedid = {};
+
+    $scope.default = true;
+    $scope.list = false;
     $http.get('/product/list-all').success(function(response){
       function chunk(arr, size) {
         var products = [];
         for (var i=0; i<arr.length; i+=size) {
           products.push(arr.slice(i, i+size));
+
         }
         return products;
+
       }
-      // console.log(response);
       $scope.products = chunk(response, 3);
+
+      console.log(response);
       $scope.$emit('UNLOAD');
     });
+    // $http({
+    //   method  : 'POST',
+    //   url     : '/product/comparetable/',
+    //   data    : $.param(  $scope.comparedid ) // pass in data as strings
+    //  })
+    //   .success(function(response) {
+    //     console.log(response);
+    //
+    // })
+    $scope.productByLists = {};
+    $scope.changeToList = function(){
+      $scope.default = false;
+      $scope.list = true;
+      $http.get('/product/list-all').success(function(response){
+        $scope.productByLists  = response;
+        console.log(response);
+      });
+    }
+    $scope.changeToGrid = function(){
+      $scope.default = true;
+    }
+
 });
 app.controller('singleProductController',function($scope, $http){
   var product_id = angular.element( document.querySelector( '#_product_id' )).val();

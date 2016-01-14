@@ -28,13 +28,12 @@
                   <div class="" style="display: inline-block;"><p>{!! $products->condition_title !!}</p></div>
                 </div>
                 <div class="product-action">
-                  <div class="inline-block-custom">
-                    <a href="{!! $products->shopper_link !!}" name="btn-visit-store" class="btn btn-primary btn-md">Visit Store</a>
-                  </div>
-                  <div class="inline-block-custom">
-                    <a href="" name="btn-visit-store" class="btn btn-primary btn-md">Favorite</a>
-                  </div>
 
+                  <div style="margin-left:10px;margin-top:10px;bottom: 0;">
+                      <a href="{!! $products->shopper_link !!}" class="btn btn-warning btn-xs" style="width:30%;"><i class="fa fa-shopping-cart"></i> Visit Store</a>
+                      <a href="/product/compare/{!! $products->id !!}" class="btn btn-success btn-xs" style="width:30%;"><span class="glyphicon glyphicon-scale"></span> Compare</a>
+                      <a href="/product/favorite/{!! $products->id !!}" class="btn btn-primary btn-xs" style="width:30%;"><span class="glyphicon glyphicon-heart"></span> Favorite</a>
+                  </div>
                 </div>
               </fieldset>
 
@@ -78,7 +77,12 @@
                   </div>
                   <div class=""><a href="/product/details/@{{ related.id }}"> @{{ related.product_name }}</a></div>
                   <div class=""> RM @{{ related.product_price }}</div>
+                  <div style="margin-left:10px;margin-top:10px;bottom: 0;">
+                      <a href="@{{ related.shopper_link }}" class="btn btn-warning btn-xs" style="width:45%;"><i class="fa fa-shopping-cart"></i> Visit Store</a>
+                      <a href="/product/compare/@{{ related.id }}" class="btn btn-success btn-xs" style="width:45%;"><span class="glyphicon glyphicon-scale"></span>Compare</a>
+                  </div>
                 </div>
+
               </div>
 
           </div>

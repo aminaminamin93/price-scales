@@ -1,6 +1,34 @@
 
 var app = angular.module('myApp', ['angularUtils.directives.dirPagination']);
 
+app.config(['$httpProvider', function ($httpProvider) {
+    $httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=utf-8';
+    $httpProvider.defaults.headers.common['X-Requested-With'] = "XMLHttpRequest";
+    $httpProvider.defaults.headers.post['X-CSRF-TOKEN'] = $('meta[name=csrf-token]').attr('content');
+}]);
+
+//testing ajax ...delete later
+app.controller('ajaxController', function($scope, $http){
+    $scope.info = {'name': 'aminuddin'};
+    $scope.edited = false;
+    $scope.editable = function(){
+      $scope.edited = true;
+    }
+    $scope.angularAjax = function($event){
+      $event.preventDefault();
+
+      $http({
+        method  : 'POST',
+        url     : '/angularAjax/submit/',
+        data    : $.param({ 'name' : $scope.info.name }) // pass in data as strings
+       })
+        .success(function(data) {
+          console.log(data);
+      });
+
+    }
+});
+
 // app.directive('loading', function () {
 //       return {
 //         restrict: 'E',
@@ -18,48 +46,73 @@ var app = angular.module('myApp', ['angularUtils.directives.dirPagination']);
 //   });
 // <div class="cssload-wrap" ><div class="cssload-container"> <span class="cssload-dots"></span> <span class="cssload-dots"></span><span class="cssload-dots"></span> <span class="cssload-dots"></span><span class="cssload-dots"></span><span class="cssload-dots"></span><span class="cssload-dots"></span><span class="cssload-dots"></span><span class="cssload-dots"></span><span class="cssload-dots"></span></div></div>
 app.controller('PdfCrawlerController', function($scope, $http) {
-
+    $scope.pdfs = {};
     $scope.$emit('LOAD');
     $http.get("/list-crawler-pdf")
     .success(function(response) {
+      console.log(response);
       $scope.pdfs =  response;
        $scope.$emit('UNLOAD');
     });
 
 
-    $scope.extractPdf = function($retailer){
-      $scope.$emit('LOAD');
-        $http.get("/crawler/start/pdf/"+$retailer.pdf_id+"/"+$retailer.r_name)
-        .success(function(response) {
-            var myEl = angular.element( document.querySelector( '.resultcrawlerpdf' ) );
-            myEl.html(response);
+   
+    $scope.processCrawler = function(pdf, context){
 
-            setTimeout(function(){
-              var myEl = angular.element( document.querySelector( '.resultcrawlerpdf' ) );
-              myEl.html("");
-            }, 4000);
-            $scope.$emit('UNLOAD');
+  
+      context.spinner = true;
+      context.status = "Extracting data";
 
-        });
+      $http({
+        method  : 'POST',
+        url     : '/pdfcrawler/extract/',
+        data    : $.param(pdf) // pass in data as strings
+       }).success(function(response) {
+          console.log(response);
+          context.status = "Process Data..";
+      }).then(
+        $http({
+          method  : 'POST',
+          url     : '/pdfcrawler/process/',
+          data    : $.param(pdf) // pass in data as strings
+         }).success(function(response) {
+            console.log(response);
+            context.status = "Successfull";
+            context.spinner = false;
+        })
+      );
 
     }
 
-    $scope.processdata = function($retailername){
+    $scope.saveCrawler = function(pdf, context){
+      
+      context.spinnerSave = true;
+      context.status = "Updating..";
 
-      $scope.$emit('LOAD');
-      $http.get("/crawler/processdata/pdf/"+$retailername.r_name)
-      .success(function(response) {
-          var myEl = angular.element( document.querySelector( '.resultcrawlerpdf' ) );
-          myEl.html(response);
-
-          setTimeout(function(){
-            var myEl = angular.element( document.querySelector( '.resultcrawlerpdf' ) );
-            myEl.html("");
-          }, 4000);
-          $scope.$emit('UNLOAD');
+       $http({
+        method  : 'POST',
+        url     : '/pdfcrawler/saveCrawler/',
+        data    : $.param(pdf) // pass in data as strings
+       }).success(function(response) {
+          context.status = "Updated";
+          context.spinnerSave = false;
+          context.edit[pdf.pdf_id] = false;
       });
 
+      
+    }
 
+    $scope.deleteCrawler = function($index, context){
+      context.spinnerDelete = true;
+      context.status = "Deleting..";
+      $http({
+        method  : 'POST',
+        url     : '/pdfcrawler/deleteCrawler/',
+        data    : $.param(context.pdf) // pass in data as strings
+      }).success(function(response) {
+          $scope.pdfs.splice($index, 1);   
+          context.spinnerDelete = false;
+      });
     }
 
 });
@@ -73,34 +126,90 @@ app.controller('WebsiteCrawlerController', function($scope, $http){
   });
 
 
-  $scope.startCrawlerWebsite = function($crawlername){
+  $scope.startCrawlerWebsite = function($crawlername, context){
 
-
-      $scope.$emit('LOAD');
-      $http.get("/crawler/startcrawler/website/"+$crawlername.crawler_name)
+    context.spinner = true;
+    context.status = "Crawling data..";
+     
+      $http.get("/crawler/startcrawler/website/"+$crawlername)
       .success(function(response) {
 
-          var myEl = angular.element( document.querySelector( '.resultcrawlerwebsite' ) );
-          myEl.html(response);
-
-          setTimeout(function(){
-            var myEl = angular.element( document.querySelector( '.resultcrawlerwebsite' ) );
-            myEl.html("");
-          }, 4000);
-
-          $scope.$emit('UNLOAD');
+        
+        context.spinner = false;
+         context.status = "Crawling Success..";
       });
     }
 
 });
 
+
 app.controller('GeneralSettingsController', function($scope, $http){
   $scope.$emit('LOAD');
+  $scope.generalsettings = {
+    user_firstname : '',
+    user_lastname : ''
+  };
+
   $http.get("/settings-general")
   .success(function(response) {
     $scope.generalsettings =  response;
     $scope.$emit('UNLOAD');
   });
+
+  $scope.edit = function(context){
+    context.editable = true;
+    $scope.generalsettingTemp = {
+      'firstname' : context.generalsetting.user_firstname,
+      'lastname' : context.generalsetting.user_lastname,
+      'email' : context.generalsetting.user_email,
+      'role' : context.generalsetting.role_title
+    }
+
+  }
+  $scope.saveCanceled = function(context){
+    context.editable = false;
+    context.generalsetting = {
+      'user_firstname': $scope.generalsettingTemp.firstname,
+      'user_lastname' : $scope.generalsettingTemp.lastname,
+      'user_email'    : $scope.generalsettingTemp.email,
+      'role_title'    : $scope.generalsettingTemp.role
+    };
+    
+  }
+  $scope.saveGenSettings = function(context){
+  
+    $scope.error = {'name': '','email':'','password':'', 'confirmation_password':''};
+    $scope.validation = true;
+    if(context.generalsetting.user_firstname == ""){
+        $scope.error.name ='Firstname must be filled!';
+        $scope.validation = false;
+    }
+    if(context.generalsetting.user_email == ""){
+        $scope.error.email= 'Email must be filled!';
+         $scope.validation = false;
+    }
+    if(context.generalsetting.newpassword !== ""){
+      if(context.generalsetting.newconfirmation_password !== context.generalsetting.new_password){
+        $scope.error.confirmation_password = 'Password not match!';
+         $scope.validation = false;
+      }
+    }
+
+    if($scope.validation){
+      $http({
+        method  : 'POST',
+        url     : '/admin/generalsettings',
+        data    : $.param(context.generalsetting) // pass in data as strings
+       })
+        .success(function(response) {
+          console.log(response);
+      });
+    }
+
+    
+  };
+
+
 });
 
 
@@ -185,6 +294,9 @@ app.controller('appController', function($scope){
   $scope.$on('LOAD', function(){$scope.loading =true});
   $scope.$on('UNLOAD', function(){$scope.loading =false});
 
+
+  $scope.$on('SPINNER', function(){$scope.spinner =true});
+  $scope.$on('UNSPINNER', function(){$scope.spinner =false});
 });
 
 app.filter('strlimit', function () {
