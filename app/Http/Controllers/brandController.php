@@ -10,7 +10,7 @@ class brandController extends Controller
 {
     public function index(){
       $brands = \DB::table('brand')
-        ->orderBy('brand_title', 'ASD')
+        ->orderBy('brand_title', 'DESC')
         ->get();
         return $brands;
     }

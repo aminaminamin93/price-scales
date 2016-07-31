@@ -11,6 +11,7 @@ use App\Favorite;
 use Carbon\carbon;
 use Session;
 use Redirect;
+use Auth;
 class FavoriteController extends Controller
 {
 
@@ -23,7 +24,7 @@ class FavoriteController extends Controller
       return \DB::table('favorite')
                 ->join('users', 'favorite.user_id','=','users.id')
                 ->join('products','favorite.product_id','=','products.id')
-                ->where('user_id','=', \Auth::user()->id)
+                ->where('user_id','=', Auth::user()->id)
                 ->select('products.*')
                 ->get();
     }
@@ -48,9 +49,10 @@ class FavoriteController extends Controller
 
             $favorite->save();
             Session::flash('alert-success', 'Product successfully add to your favorite list');
-            return Redirect::home();
+            return \View::make('/member/favorites')->with('title', 'Favorites');
         }else{
-            return 'exist';
+            Session::flash('alert-warning', 'Your already add to your favorite');
+            return \View::make('/member/favorites')->with('title', 'Favorites');
         }
     }
 
@@ -79,8 +81,25 @@ class FavoriteController extends Controller
     }
 
 
-    public function destroy($id)
+    public function destroy(Request $request)
     {
+
+      $products = \DB::table('favorite')
+        ->where('product_id','=',$request->get('id'))
+        ->where('user_id','=', Auth::user()->id)
+        ->first();
+
+      if($products){
+        $deleted = Favorite::find($products->id);
+        $deleted->delete();
+      }
+
+      return \DB::table('favorite')
+                ->join('users', 'favorite.user_id','=','users.id')
+                ->join('products','favorite.product_id','=','products.id')
+                ->where('user_id','=', Auth::user()->id)
+                ->select('products.*')
+                ->get();
 
     }
 }

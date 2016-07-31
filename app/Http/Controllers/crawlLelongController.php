@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Products;
+use DB;
 
 class crawlLelongController extends Controller
 {
@@ -56,9 +57,9 @@ class crawlLelongController extends Controller
 						$products[$i]['price'] = str_replace($toReplace, $with, $crawler->text());
 					});
 
-					$rank = $crawler->filter('div.catalog-wrap')->each(function ($crawler, $i) use (&$products) 
+					$rank = $crawler->filter('div.catalogImg-wrap img')->each(function ($crawler, $i) use (&$products) 
 					{
-						$products[$i]['image'] = $crawler->parents()->attr('id');
+						$products[$i]['image'] = $crawler->attr('data-original');
 					});
 
 					$rank = $crawler->filter('div.catalogIcon')->each(function ($crawler, $i) use (&$products) 
@@ -68,21 +69,20 @@ class crawlLelongController extends Controller
 
 					++$rank;
 			$i++;
-			//print_r($products);
+			
 			} 
-		
+			//print_r($products);
 		});
 
 		//--------------insert data using model-----------------
 	   	foreach ($products as $pro) 
 	   	{
-
-	   		$product = new Products;
 	   				
 	   		if($category == 'Handphone')
 	   		{
-	   			$product->category_id = 1;	
-				$product->condition_id = 3;
+	   			$category_id = 1;	
+				$condition_id = 3;
+				$retailer_id = 2;
 			}
 
 			$arrProduct = explode(' ', $pro['title']);	
@@ -91,23 +91,56 @@ class crawlLelongController extends Controller
 	   		{
 	   			foreach ($brands as $brand) 
 	   			{
-	   				$product->brand_id = $brand->id;
+	   				$brand_id = $brand->id;
 	   			}	
 	   		}
 	   		else
 	   		{
-	   			$product->brand_id = 204;
+	   			$brand_id = 1;
 	   		}
    				
-   			$product->product_name = $pro['title'];
-   			$product->shopper_link = $pro['url'];
-   			$product->product_price = $pro['price'];
-   			$product->picture_link = $pro['image'];
-   			$product->product_shipping = $pro['shipping'];
+   			$product_name = $pro['title'];
+   			$shopper_link = $pro['url'];
+   			$product_price = $pro['price'];
+   			$picture_link = $pro['image'];
+   			$product_shipping = $pro['shipping'];
    				
-   			$product->save();
+   			//----------------------------------------update products for change price-----------------------------------------
+			$product_id = 0;
+			$productExistFilter = $this->productExistFilter($product_name,$shopper_link,$picture_link,$brand_id,$product_id);
+			if($productExistFilter){
+				//this if $productExistFilter return true......will update product from database
+				if($product_id !== 0){
+					$product = Products::find($product_id);
+					$product_price_temp = $product->product_price;
+
+					$product->product_price = $product_price;
+					$product->product_price_temp = $product_price_temp;
+					$product->save();
+				}
+
+			}else{
+
+				//this if $productExistFilter return false........will create new product to database...
+				$product = new Products;
+				$product->product_name = $product_name;
+				$product->product_price = $product_price;
+				$product->product_price_temp = $product_price;
+				$product->product_shipping = $product_shipping;
+				$product->picture_link = $picture_link;
+				$product->shopper_link = $shopper_link;
+				$product->category_id = $category_id;
+				$product->brand_id = $brand_id;
+				$product->condition_id = $condition_id;
+				$product->retailer_id = $retailer_id;
+				$product->save();
+			}
+			//-------------------------------------------------------------------------------------------------------------------
+
    		}
    		//-------------------------------------------------------
+
+   		return "<div class='alert alert-success'>Successfully crawler site</div>";
 	}
 
 	public function indexTablets()
@@ -154,9 +187,9 @@ class crawlLelongController extends Controller
 					    $products[$i]['price'] = str_replace($toReplace, $with, $crawler->text());
 					});
 
-					$rank = $crawler->filter('div.catalog-wrap')->each(function ($crawler, $i) use (&$products) 
+					$rank = $crawler->filter('div.catalogImg-wrap img')->each(function ($crawler, $i) use (&$products) 
 					{
-					    $products[$i]['image'] = $crawler->parents()->attr('id');
+						$products[$i]['image'] = $crawler->attr('data-original');
 					});
 
 					$rank = $crawler->filter('div.catalogIcon')->each(function ($crawler, $i) use (&$products) 
@@ -175,13 +208,12 @@ class crawlLelongController extends Controller
 		//--------------insert data using model-----------------
 	   	foreach ($products as $pro) 
 	   	{
-
-	   		$product = new Products;
 	   				
 	   		if($category == 'Tablet')
 	   		{
-	   			$product->category_id = 2;	
-				$product->condition_id = 3;
+	   			$category_id = 2;	
+				$condition_id = 3;
+				$retailer_id = 2;
 			}
 
 			$arrProduct = explode(' ', $pro['title']);	
@@ -190,24 +222,56 @@ class crawlLelongController extends Controller
 	   		{
 	   			foreach ($brands as $brand) 
 	   			{
-	   				$product->brand_id = $brand->id;
+	   				$brand_id = $brand->id;
 	   			}	
 	   		}
 	   		else
 	   		{
-	   			$product->brand_id = 204;
+	   			$brand_id = 1;
 	   		}
    				
-   			$product->product_name = $pro['title'];
-   			$product->shopper_link = $pro['url'];
-   			$product->product_price = $pro['price'];
-   			$product->picture_link = $pro['image'];
-   			$product->product_shipping = $pro['shipping'];
+   			$product_name = $pro['title'];
+   			$shopper_link = $pro['url'];
+   			$product_price = $pro['price'];
+   			$picture_link = $pro['image'];
+   			$product_shipping = $pro['shipping'];
    				
-   			$product->save();
+   			//----------------------------------------update products for change price-----------------------------------------
+			$product_id = 0;
+			$productExistFilter = $this->productExistFilter($product_name,$shopper_link,$picture_link,$brand_id,$product_id);
+			if($productExistFilter){
+				//this if $productExistFilter return true......will update product from database
+				if($product_id !== 0){
+					$product = Products::find($product_id);
+					$product_price_temp = $product->product_price;
+
+					$product->product_price = $product_price;
+					$product->product_price_temp = $product_price_temp;
+					$product->save();
+				}
+
+			}else{
+
+				//this if $productExistFilter return false........will create new product to database...
+				$product = new Products;
+				$product->product_name = $product_name;
+				$product->product_price = $product_price;
+				$product->product_price_temp = $product_price;
+				$product->product_shipping = $product_shipping;
+				$product->picture_link = $picture_link;
+				$product->shopper_link = $shopper_link;
+				$product->category_id = $category_id;
+				$product->brand_id = $brand_id;
+				$product->condition_id = $condition_id;
+				$product->retailer_id = $retailer_id;
+				$product->save();
+			}
+			//-------------------------------------------------------------------------------------------------------------------
+
    		}
    		//-------------------------------------------------------
-	
+
+   		return "<div class='alert alert-success'>Successfully crawler site</div>";
 	}
 
 	public function indexNotebooks()
@@ -254,9 +318,9 @@ class crawlLelongController extends Controller
 					    $products[$i]['price'] = str_replace($toReplace, $with, $crawler->text());
 					});
 
-					$rank = $crawler->filter('div.catalog-wrap')->each(function ($crawler, $i) use (&$products) 
+					$rank = $crawler->filter('div.catalogImg-wrap img')->each(function ($crawler, $i) use (&$products) 
 					{
-					    $products[$i]['image'] = $crawler->parents()->attr('id');
+						$products[$i]['image'] = $crawler->attr('data-original');
 					});
 
 					$rank = $crawler->filter('div.catalogIcon')->each(function ($crawler, $i) use (&$products) 
@@ -274,13 +338,12 @@ class crawlLelongController extends Controller
 		//--------------insert data using model-----------------
 	   	foreach ($products as $pro) 
 	   	{
-
-	   		$product = new Products;
-	   				
+		
 	   		if($category == 'Notebook')
 	   		{
-	   			$product->category_id = 3;	
-				$product->condition_id = 3;
+	   			$category_id = 3;	
+				$condition_id = 3;
+				$retailer_id = 2;
 			}
 
 			$arrProduct = explode(' ', $pro['title']);	
@@ -289,24 +352,56 @@ class crawlLelongController extends Controller
 	   		{
 	   			foreach ($brands as $brand) 
 	   			{
-	   				$product->brand_id = $brand->id;
+	   				$brand_id = $brand->id;
 	   			}	
 	   		}
 	   		else
 	   		{
-	   			$product->brand_id = 204;
+	   			$brand_id = 1;
 	   		}
    				
-   			$product->product_name = $pro['title'];
-   			$product->shopper_link = $pro['url'];
-   			$product->product_price = $pro['price'];
-   			$product->picture_link = $pro['image'];
-   			$product->product_shipping = $pro['shipping'];
+   			$product_name = $pro['title'];
+   			$shopper_link = $pro['url'];
+   			$product_price = $pro['price'];
+   			$picture_link = $pro['image'];
+   			$product_shipping = $pro['shipping'];
    				
-   			$product->save();
+   			//----------------------------------------update products for change price-----------------------------------------
+			$product_id = 0;
+			$productExistFilter = $this->productExistFilter($product_name,$shopper_link,$picture_link,$brand_id,$product_id);
+			if($productExistFilter){
+				//this if $productExistFilter return true......will update product from database
+				if($product_id !== 0){
+					$product = Products::find($product_id);
+					$product_price_temp = $product->product_price;
+
+					$product->product_price = $product_price;
+					$product->product_price_temp = $product_price_temp;
+					$product->save();
+				}
+
+			}else{
+
+				//this if $productExistFilter return false........will create new product to database...
+				$product = new Products;
+				$product->product_name = $product_name;
+				$product->product_price = $product_price;
+				$product->product_price_temp = $product_price;
+				$product->product_shipping = $product_shipping;
+				$product->picture_link = $picture_link;
+				$product->shopper_link = $shopper_link;
+				$product->category_id = $category_id;
+				$product->brand_id = $brand_id;
+				$product->condition_id = $condition_id;
+				$product->retailer_id = $retailer_id;
+				$product->save();
+			}
+			//-------------------------------------------------------------------------------------------------------------------
+
    		}
    		//-------------------------------------------------------
 	
+		return "<div class='alert alert-success'>Successfully crawler site</div>";
 	}
 
 	public function indexCameras()
@@ -353,9 +448,9 @@ class crawlLelongController extends Controller
 					    $products[$i]['price'] = str_replace($toReplace, $with, $crawler->text());
 					});
 
-					$rank = $crawler->filter('div.catalog-wrap')->each(function ($crawler, $i) use (&$products) 
+					$rank = $crawler->filter('div.catalogImg-wrap img')->each(function ($crawler, $i) use (&$products) 
 					{
-					    $products[$i]['image'] = $crawler->parents()->attr('id');
+						$products[$i]['image'] = $crawler->attr('data-original');
 					});
 
 					$rank = $crawler->filter('div.catalogIcon')->each(function ($crawler, $i) use (&$products) 
@@ -373,13 +468,12 @@ class crawlLelongController extends Controller
 		//--------------insert data using model-----------------
 	   	foreach ($products as $pro) 
 	   	{
-
-	   		$product = new Products;
-	   				
+		
 	   		if($category == 'Digital Cameras')
 	   		{
-	   			$product->category_id = 4;	
-				$product->condition_id = 3;
+	   			$category_id = 4;	
+				$condition_id = 3;
+				$retailer_id = 2;
 			}
 
 			$arrProduct = explode(' ', $pro['title']);	
@@ -388,24 +482,56 @@ class crawlLelongController extends Controller
 	   		{
 	   			foreach ($brands as $brand) 
 	   			{
-	   				$product->brand_id = $brand->id;
+	   				$brand_id = $brand->id;
 	   			}	
 	   		}
 	   		else
 	   		{
-	   			$product->brand_id = 204;
+	   			$brand_id = 1;
 	   		}
    				
-   			$product->product_name = $pro['title'];
-   			$product->shopper_link = $pro['url'];
-   			$product->product_price = $pro['price'];
-   			$product->picture_link = $pro['image'];
-   			$product->product_shipping = $pro['shipping'];
+   			$product_name = $pro['title'];
+   			$shopper_link = $pro['url'];
+   			$product_price = $pro['price'];
+   			$picture_link = $pro['image'];
+   			$product_shipping = $pro['shipping'];
    				
-   			$product->save();
+   			//----------------------------------------update products for change price-----------------------------------------
+			$product_id = 0;
+			$productExistFilter = $this->productExistFilter($product_name,$shopper_link,$picture_link,$brand_id,$product_id);
+			if($productExistFilter){
+				//this if $productExistFilter return true......will update product from database
+				if($product_id !== 0){
+					$product = Products::find($product_id);
+					$product_price_temp = $product->product_price;
+
+					$product->product_price = $product_price;
+					$product->product_price_temp = $product_price_temp;
+					$product->save();
+				}
+
+			}else{
+
+				//this if $productExistFilter return false........will create new product to database...
+				$product = new Products;
+				$product->product_name = $product_name;
+				$product->product_price = $product_price;
+				$product->product_price_temp = $product_price;
+				$product->product_shipping = $product_shipping;
+				$product->picture_link = $picture_link;
+				$product->shopper_link = $shopper_link;
+				$product->category_id = $category_id;
+				$product->brand_id = $brand_id;
+				$product->condition_id = $condition_id;
+				$product->retailer_id = $retailer_id;
+				$product->save();
+			}
+			//-------------------------------------------------------------------------------------------------------------------
+
    		}
    		//-------------------------------------------------------
 	
+		return "<div class='alert alert-success'>Successfully crawler site</div>";
 	}
 
 	public function indexTVs()
@@ -452,9 +578,9 @@ class crawlLelongController extends Controller
 					    $products[$i]['price'] = str_replace($toReplace, $with, $crawler->text());
 					});
 
-					$rank = $crawler->filter('div.catalog-wrap')->each(function ($crawler, $i) use (&$products) 
+					$rank = $crawler->filter('div.catalogImg-wrap img')->each(function ($crawler, $i) use (&$products) 
 					{
-					    $products[$i]['image'] = $crawler->parents()->attr('id');
+						$products[$i]['image'] = $crawler->attr('data-original');
 					});
 
 					$rank = $crawler->filter('div.catalogIcon')->each(function ($crawler, $i) use (&$products) 
@@ -472,13 +598,12 @@ class crawlLelongController extends Controller
 		//--------------insert data using model-----------------
 	   	foreach ($products as $pro) 
 	   	{
-
-	   		$product = new Products;
 	   				
 	   		if($category == 'TV')
 	   		{
-	   			$product->category_id = 5;	
-				$product->condition_id = 3;
+	   			$category_id = 5;	
+				$condition_id = 3;
+				$retailer_id = 2;
 			}
 
 			$arrProduct = explode(' ', $pro['title']);	
@@ -487,24 +612,56 @@ class crawlLelongController extends Controller
 	   		{
 	   			foreach ($brands as $brand) 
 	   			{
-	   				$product->brand_id = $brand->id;
+	   				$brand_id = $brand->id;
 	   			}	
 	   		}
 	   		else
 	   		{
-	   			$product->brand_id = 204;
+	   			$brand_id = 1;
 	   		}
    				
-   			$product->product_name = $pro['title'];
-   			$product->shopper_link = $pro['url'];
-   			$product->product_price = $pro['price'];
-   			$product->picture_link = $pro['image'];
-   			$product->product_shipping = $pro['shipping'];
+   			$product_name = $pro['title'];
+   			$shopper_link = $pro['url'];
+   			$product_price = $pro['price'];
+   			$picture_link = $pro['image'];
+   			$product_shipping = $pro['shipping'];
    				
-   			$product->save();
+   			//----------------------------------------update products for change price-----------------------------------------
+			$product_id = 0;
+			$productExistFilter = $this->productExistFilter($product_name,$shopper_link,$picture_link,$brand_id,$product_id);
+			if($productExistFilter){
+				//this if $productExistFilter return true......will update product from database
+				if($product_id !== 0){
+					$product = Products::find($product_id);
+					$product_price_temp = $product->product_price;
+
+					$product->product_price = $product_price;
+					$product->product_price_temp = $product_price_temp;
+					$product->save();
+				}
+
+			}else{
+
+				//this if $productExistFilter return false........will create new product to database...
+				$product = new Products;
+				$product->product_name = $product_name;
+				$product->product_price = $product_price;
+				$product->product_price_temp = $product_price;
+				$product->product_shipping = $product_shipping;
+				$product->picture_link = $picture_link;
+				$product->shopper_link = $shopper_link;
+				$product->category_id = $category_id;
+				$product->brand_id = $brand_id;
+				$product->condition_id = $condition_id;
+				$product->retailer_id = $retailer_id;
+				$product->save();
+			}
+			//-------------------------------------------------------------------------------------------------------------------
+
    		}
    		//-------------------------------------------------------
 	
+		return "<div class='alert alert-success'>Successfully crawler site</div>";
 	}
 
 	public function indexGames()
@@ -551,9 +708,9 @@ class crawlLelongController extends Controller
 					    $products[$i]['price'] = str_replace($toReplace, $with, $crawler->text());
 					});
 
-					$rank = $crawler->filter('div.catalog-wrap')->each(function ($crawler, $i) use (&$products) 
+					$rank = $crawler->filter('div.catalogImg-wrap img')->each(function ($crawler, $i) use (&$products) 
 					{
-					    $products[$i]['image'] = $crawler->parents()->attr('id');
+						$products[$i]['image'] = $crawler->attr('data-original');
 					});
 
 					$rank = $crawler->filter('div.catalogIcon')->each(function ($crawler, $i) use (&$products) 
@@ -572,12 +729,11 @@ class crawlLelongController extends Controller
 	   	foreach ($products as $pro) 
 	   	{
 
-	   		$product = new Products;
-	   				
 	   		if($category == 'Game Console')
 	   		{
-	   			$product->category_id = 6;	
-				$product->condition_id = 3;
+	   			$category_id = 6;	
+				$condition_id = 3;
+				$retailer_id = 2;
 			}
 
 			$arrProduct = explode(' ', $pro['title']);	
@@ -586,25 +742,73 @@ class crawlLelongController extends Controller
 	   		{
 	   			foreach ($brands as $brand) 
 	   			{
-	   				$product->brand_id = $brand->id;
+	   				$brand_id = $brand->id;
 	   			}	
 	   		}
 	   		else
 	   		{
-	   			$product->brand_id = 204;
+	   			$brand_id = 1;
 	   		}
    				
-   			$product->product_name = $pro['title'];
-   			$product->shopper_link = $pro['url'];
-   			$product->product_price = $pro['price'];
-   			$product->picture_link = $pro['image'];
-   			$product->product_shipping = $pro['shipping'];
+   			$product_name = $pro['title'];
+   			$shopper_link = $pro['url'];
+   			$product_price = $pro['price'];
+   			$picture_link = $pro['image'];
+   			$product_shipping = $pro['shipping'];
    				
-   			$product->save();
+   			//----------------------------------------update products for change price-----------------------------------------
+			$product_id = 0;
+			$productExistFilter = $this->productExistFilter($product_name,$shopper_link,$picture_link,$brand_id,$product_id);
+			if($productExistFilter){
+				//this if $productExistFilter return true......will update product from database
+				if($product_id !== 0){
+					$product = Products::find($product_id);
+					$product_price_temp = $product->product_price;
+
+					$product->product_price = $product_price;
+					$product->product_price_temp = $product_price_temp;
+					$product->save();
+				}
+
+			}else{
+
+				//this if $productExistFilter return false........will create new product to database...
+				$product = new Products;
+				$product->product_name = $product_name;
+				$product->product_price = $product_price;
+				$product->product_price_temp = $product_price;
+				$product->product_shipping = $product_shipping;
+				$product->picture_link = $picture_link;
+				$product->shopper_link = $shopper_link;
+				$product->category_id = $category_id;
+				$product->brand_id = $brand_id;
+				$product->condition_id = $condition_id;
+				$product->retailer_id = $retailer_id;
+				$product->save();
+			}
+			//-------------------------------------------------------------------------------------------------------------------
+
    		}
    		//-------------------------------------------------------
-	
+		
+		return "<div class='alert alert-success'>Successfully crawler site</div>";
 	}
+
+	private function productExistFilter($product_name,$shopper_link,$picture_link,$brand_id, &$product_id){
+
+		$products = \DB::table('products')
+						->where('shopper_link', 'LIKE', $shopper_link)
+						->where('brand_id', '=', $brand_id)
+						->first();
+
+		if($products){
+			$product_id = $products->id;
+			return true; //means the product is exist
+		}else{
+			return false; //means the product is not exist
+		}
+	}
+
 
 }
 

@@ -17,7 +17,7 @@ class CreateProductsTable extends Migration
             $table->string('product_name');
             $table->double('product_price');
             $table->double('product_price_temp');
-            $table->double('product_rating');
+            $table->double('product_favorite');
             $table->integer('product_reviews');
             $table->string('picture_link');
             $table->string('shopper_link');
@@ -26,11 +26,13 @@ class CreateProductsTable extends Migration
             $table->integer('condition_id')->unsigned();
             $table->integer('brand_id')->unsigned();
             $table->integer('category_id')->unsigned();
+            $table->integer('retailer_id')->unsigned();
             $table->timestamps();
 
            $table->foreign('category_id')->references('id')->on('category')->onDelete('cascade');
            $table->foreign('condition_id')->references('id')->on('condition')->onDelete('cascade');
            $table->foreign('brand_id')->references('id')->on('brand')->onDelete('cascade');
+           $table->foreign('retailer_id')->references('id')->on('retailers')->onDelete('cascade');
 
         });
 

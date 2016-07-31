@@ -14,10 +14,10 @@
                     <li @if($title == "Home" || $title == "Welcome")class="active" @endif>
                         <a href="/">Home</a>
                     </li>
-                    <li class="li-category"><a id="li-category">Category</a>
+                    <li class="li-category"><a id="li-category" style="cursor:pointer;text-decoration:none;" ng-click="gotoCategory()">Category</a>
 
                     </li>
-                    <li class="li-brand"><a id="li-brand">Brand</a>
+                    <li class="li-brand"><a id="li-brand" style="cursor:pointer;text-decoration:none;"  ng-click="gotoBrand()">Brand</a>
                     </li>
 
                      <li><a href="" ng-click="contactUs($event)">Contact Us</a></li>

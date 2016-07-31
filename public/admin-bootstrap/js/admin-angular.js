@@ -28,23 +28,53 @@ app.controller('ajaxController', function($scope, $http){
 
     }
 });
+app.controller('ProductsController', function($scope, $http){
+  $scope.productBrands = {}
 
-// app.directive('loading', function () {
-//       return {
-//         restrict: 'E',
-//         replace:true,
-//         template: '<div class="alert alert-success">This is alert success</div>',
-//         link: function (scope, element, attr) {
-//               scope.$watch('loading', function (val) {
-//                   if (val)
-//                       $(element).show();
-//                   else
-//                       $(element).hide();
-//               });
-//         }
-//       }
-//   });
-// <div class="cssload-wrap" ><div class="cssload-container"> <span class="cssload-dots"></span> <span class="cssload-dots"></span><span class="cssload-dots"></span> <span class="cssload-dots"></span><span class="cssload-dots"></span><span class="cssload-dots"></span><span class="cssload-dots"></span><span class="cssload-dots"></span><span class="cssload-dots"></span><span class="cssload-dots"></span></div></div>
+  $http.get('/admin/product/brand').success(function(response){
+    $scope.productBrands = response;
+  });
+  $scope.status = "";
+
+  $scope.checkDeadlink = function($event, context){
+    
+    $event.preventDefault();
+
+    $http({
+        method  : 'POST',
+        url     : '/admin/product/checkdeadlink',
+        data    : $.param(context.productBrand) // pass in data as strings
+       })
+        .success(function(data) {
+          var deadlinks = data;
+          if(data.length == 0){
+             context.status = "No deadlink found";
+          }else{
+             context.status = "Deadlinks found.. Data deleted";
+             angular.forEach(deadlinks, function(value) {
+                $scope.deleteLink(value );   
+             });
+
+          }
+      });
+  
+  }  
+
+
+  $scope.deleteLink = function(deadlink){
+    $http({
+        method  : 'POST',
+        url     : '/admin/product/delete',
+        data    : $.param(deadlink) // pass in data as strings
+       })
+        .success(function(data) {
+          console.log(data);
+          
+      });
+      
+  }
+});
+
 app.controller('PdfCrawlerController', function($scope, $http) {
     $scope.pdfs = {};
     $scope.$emit('LOAD');

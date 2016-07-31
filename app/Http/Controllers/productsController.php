@@ -37,9 +37,9 @@ class productsController extends Controller
           ->where('products.id','=',$id)
           ->first();
 
-      return View::make('product/details')
-          ->with('products', $products)
-          ->with('title','Product details');
+          return View::make('product/details')
+            ->with('products', $products)
+            ->with('title','Product details');
     }
 
     //related product refer to product id
@@ -112,7 +112,8 @@ class productsController extends Controller
         ->take(4)
         ->get();
     }
-    public function products($query){
+
+    public function searchByQuery($query){
       $products = \DB::table('products')
           ->join('condition','products.condition_id','=','condition.id')
           ->join('brand','products.brand_id','=','brand.id')
@@ -121,30 +122,62 @@ class productsController extends Controller
           ->select('products.*','condition.condition_title','brand.brand_title','category.category_title')
           ->get();
 
-      return $products;
+
+          $comparetableProducts = array();
+          // $newarr = array(['id'=>1, 'name'='myname']); 
+
+          foreach ($products as $product) {
+            $newproducts = \DB::table('products')
+              ->select(DB::raw('count(*) as counter'))
+              ->where('id' , '<>', $product->id)
+              ->where('brand_id', '=', $product->brand_id)
+              ->where('category_id','=',$product->category_id)
+              ->whereRaw('MATCH(product_name) AGAINST(? IN BOOLEAN MODE)', array($product->product_name))
+              ->get();
+              foreach ($newproducts as $newproduct) {
+                if($newproduct->counter >= 1){
+                  $comparetable = true;
+                }else{
+                  $comparetable = false;
+                }
+              }
+              $comparetableProducts[] = [ 'id'=>$product->id,
+                          'product_name'=>$product->product_name,
+                          'product_price'=>$product->product_price,
+                          'product_price_temp'=>$product->product_price_temp,
+                          'product_favorite'=>$product->product_favorite,
+                          'product_reviews'=>$product->product_reviews,
+                          'picture_link'=>$product->picture_link,
+                          'shopper_link'=>$product->shopper_link,
+                          'comparetable'=>$comparetable
+                        ];
+          }
+
+          return $comparetableProducts;
+
     }
 
     public function view_comparison($id){
 
-        $product = Products::where('id', $id)->first();
+        $products = Products::where('id', $id)->first();
 
-        $products = \DB::table('products')
-          ->join('enrollment', 'products.id','=','enrollment.product_id')
-          ->join('retailers','enrollment.retailer_id','=','retailers.id')
+
+        $compareProducts = \DB::table('products')
+          ->join('retailers','products.retailer_id','=','retailers.id')
           ->join('category','products.category_id','=','category.id')
           ->join('condition','products.condition_id','=','condition.id')
           ->join('brand','products.brand_id','=','brand.id')
-          // ->whereRaw('MATCH(product_name) AGAINST(? IN BOOLEAN MODE)',array($product->product_name))
-          ->where('products.id','<>',$product->id)
-          ->where('products.brand_id', '=', $product->brand_id)
-
+          ->whereRaw('MATCH(product_name) AGAINST(? IN BOOLEAN MODE)',array($products->product_name))
+          ->where('products.id','<>',$products->id)
+          ->where('products.brand_id', '=', $products->brand_id)
+          ->where('products.category_id', '=', $products->category_id)
+          ->select('products.*', 'retailers.retailer_name', 'retailers.retailer_site', 'retailers.picture_link as picturelink', 'category.category_title', 'brand.brand_title', 'condition.condition_title')
           ->get();
 
-
         return \View::make('product/compareProduct')
-            ->with('title', $product->product_name)
-            ->with('products', $product)
-            ->with('compareProducts', $products);
+            ->with('title', $products->product_name)
+            ->with('products', $products)
+            ->with('compareProducts', $compareProducts);
     }
     public function comparetable(Request $request){
       return $request->get('comparedid');
@@ -191,17 +224,47 @@ class productsController extends Controller
       $condition = $request->get('condition');
 
       $products = \DB::table('products')
-
+        // ->select('products.*',\DB::raw('COUNT(id) as totalproducts'))
         ->where(function($query) use ($category, $brand, $condition) {
           $category == 0 ? $query->where('category_id', '<>', $category) : $query->where('category_id','=', $category);
           $brand == 0 ? $query->where('brand_id', '<>', $brand) : $query->where('brand_id','=', $brand);
           $condition == 0 ? $query->where('condition_id', '<>', $condition) : $query->where('condition_id','=', $condition);
         })
-        ->orWhereRaw('MATCH(product_name) AGAINST(? IN BOOLEAN MODE)', array($request->get('searchText')))
         ->whereBetween('product_price',[$request->get('priceLow'),$request->get('priceHigh')])
+        ->orWhereRaw('MATCH(product_name) AGAINST(? IN BOOLEAN MODE)', array($request->get('searchText')))
+        ->orderBy('product_price')
         ->get();
 
-        return $products;
+        $comparetableProducts = array();
+
+        foreach ($products as $product) {
+          $newproducts = \DB::table('products')
+            ->select(DB::raw('count(*) as counter'))
+            ->where('id' , '<>', $product->id)
+            ->where('brand_id', '=', $product->brand_id)
+            ->where('category_id','=',$product->category_id)
+            ->whereRaw('MATCH(product_name) AGAINST(? IN BOOLEAN MODE)', array($product->product_name))
+            ->get();
+            foreach ($newproducts as $newproduct) {
+              if($newproduct->counter >= 1){
+                $comparetable = true;
+              }else{
+                $comparetable = false;
+              }
+            }
+            $comparetableProducts[] = [ 'id'=>$product->id,
+                        'product_name'=>$product->product_name,
+                        'product_price'=>$product->product_price,
+                        'product_price_temp'=>$product->product_price_temp,
+                        'product_favorite'=>$product->product_favorite,
+                        'product_reviews'=>$product->product_reviews,
+                        'picture_link'=>$product->picture_link,
+                        'shopper_link'=>$product->shopper_link,
+                        'comparetable'=>$comparetable
+                      ];
+        }
+
+        return $comparetableProducts;
     }
 
     public function search(Request $request){
@@ -345,6 +408,10 @@ class productsController extends Controller
         $products = Products::whereRaw("MATCH(product_name) AGAINST(? IN BOOLEAN MODE)", array($data))->get();
 
         dd($products);
+
+    }
+
+    public function objectOriented(){
 
     }
 }

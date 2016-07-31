@@ -12,7 +12,7 @@ use App\Products;
 
 class PdfParserController extends Controller
 {
-  
+
   public function listPdf(){
 
     $pdfs = \DB::table('retailers')
@@ -47,8 +47,8 @@ class PdfParserController extends Controller
           ->get();
 
         foreach ($pdfs as $pdf) {
-          
-        
+
+
           $parser = new \Smalot\PdfParser\Parser();
           $pdffile    = $parser->parseFile($pdf->pricelist_file);  //method called from Parser.php
           // $text = $pdf->getSectionsText();
@@ -76,27 +76,25 @@ class PdfParserController extends Controller
 
       $pdfs = \DB::table('pdf')
           ->join('retailers', 'pdf.retailer_id','=', 'retailers.id')
-          ->where('pdf.id','=', $request->get('id'))
-          ->select('pdf.*', 'retailers.retailer_name')
+          ->where('pdf.id','=', $request->get('pdf_id'))
+          ->select('pdf.*', 'retailers.id as retailerid','retailers.retailer_name')
           ->get();
 
       foreach ($pdfs as $pdf) {
-        $retailer = strtolower($pdf->retailer_name);
+        $retailername = strtolower($pdf->retailer_name);
+        $retailerid = strtolower($pdf->retailerid);
       }
 
-      if(strcasecmp( $retailer, 'cycom' ) == 0){
-        // return $this->cycomExtractor($retailer);
-
-        return "this is ". $retailer;
+      if(strcasecmp( $retailername, 'cycom' ) == 0){
+        return $this->cycomExtractor($retailername, $retailerid);
       }
       else{
-        return "this is ". $retailer;
-        // return $this->czoneExtractor($retailer);
+        // return $this->czoneExtractor($retailer, $retailerid);
       }
 
     }
 
-    private function cycomExtractor($retailer){
+    private function cycomExtractor($retailer, $retailerid){
 
        $pricelist_filter = fopen(public_path().'/file/pricelist-filter/'.$retailer."-filter.txt", 'r') or die('Unable to open file!');
        // Output one line until end-of-file
@@ -133,8 +131,8 @@ class PdfParserController extends Controller
                     $_product =  str_replace($replace, $toReplace, $product);
 
                     $products[]= array($index,$_product[0], $_product[1], str_replace($_product[2], '',$match[0]));
-                    
-                
+
+
                 }
             }
             fclose($pricelist_pdf);
@@ -142,48 +140,50 @@ class PdfParserController extends Controller
         }
 
          $update_pid = "";
-         
-          
+
+
          foreach($products as list($index, $product, $product_name, $price)){
             $product_spread = explode(' ', strtolower($product));
             // dd($product_spread);
 
-           
+
             //filter brand from database with spread product name
 
-            $brands = \DB::table('brand'); 
+            $brands = \DB::table('brand');
             foreach ($product_spread as $spread) {
               $brands->orWhere('brand_title', 'LIKE' , $spread);
             }
-            $brands = $brands->distinct()->get();  
+            $brands = $brands->distinct()->get();
 
-  
-    
+
+
             $product_brand = "";
             if($brands){
               //if filter brand match with product name.....
               foreach ($brands as $brand) {
-                $product_brand = $brand->id;              
-              }  
+                $product_brand = $brand->id;
+              }
             }else{
               //if filter brand not match with product name set as brand:other.....
-                $product_brand = 1;   
+                $product_brand = 1;
             }
-            
+
 
               //default picture
 
-           
+
             $pricefilter = $this->priceFilter($product_name, $product);
-            if($pricefilter){ 
+            if($pricefilter){
               //return true, add product to database
               $new_product = new Products;
               $new_product->product_name = $product_name.' '.$product;
               $new_product->product_price = $price;
               $new_product->product_price_temp = $price;
-              $new_product->product_rating = 0;
+              $new_product->product_favorite = 0;
               $new_product->product_reviews = 0;
               $new_product->condition_id = 1;
+              $new_product->picture_link = '/bootstrap/img/default_product.jpg';
+              $new_product->retailer_id = $retailerid;
               $new_product->brand_id = $product_brand;
               $new_product->category_id = 1;
               $new_product->created_at = Carbon::now();
@@ -191,15 +191,15 @@ class PdfParserController extends Controller
               $new_product->save();
             }else{
               //return false, update product price only
-              
-              
+
+
             }
            // $update_pid = $update_pid.$pricefilter;
 
-            
+
         }
 
-        
+
     }
 
     private function czoneExtractor($retailer){
@@ -274,15 +274,15 @@ class PdfParserController extends Controller
           $updated->save();
         }
         return false;
-       
+
       }
       else{
        return true;
-       
+
       }
 
       //return false means product exist and should only updated the price while
-        //return true means product not exist and should add the whole product details to database 
+        //return true means product not exist and should add the whole product details to database
     }
 
 

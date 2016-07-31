@@ -1,5 +1,5 @@
 <div class="search-form">
-  {!! Form::open(array('url'=>'product/search/all', 'method'=>'GET','ng-submit'=>'searchProducts($event)')) !!}
+  {!! Form::open(array('url'=>'product/search/all', 'method'=>'POST','ng-submit'=>'searchProducts($event)')) !!}
   <!-- <form action="/products/search/all" method="POST" > -->
   <div class="row" style="margin-left:10px;">
     <div class="col-xs-4">

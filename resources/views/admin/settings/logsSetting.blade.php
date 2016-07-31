@@ -20,6 +20,7 @@
              <ul class="dropdown-menu">
                  <li><a data-toggle="tab" href="#drop-setting1">PDF</a></li>
                  <li><a data-toggle="tab" href="#drop-setting2">WEBSITE</a></li>
+                 <li><a data-toggle="tab" href="#drop-setting3">UPDATE PRODUCT LINK</a></li>
              </ul>
          </li>
          <li><a data-toggle="tab" href="#setting4">System logs</a></li>
@@ -125,7 +126,7 @@
               <table class="table table-hover">
               
                 <tr><th>Retailer Name</th><th>Price List</th>@if(Auth::user()->role_id == 1)<th>Modify</th>@endif<th>Process</th><th>Status</th></tr>
-                <tr ng-repeat="pdf in pdfs"><td>@{{ pdf.retailer_name }}</td>
+                <tr ng-repeat="pdf in pdfs"><td>@{{ pdf.pdf_id }}</td>
                   <td><input type="text" name="pdf[@{{pdf.pdf_id}}]" ng-model='pdf.pricelist_file' ng-hide="!edit[@{{pdf.pdf_id}}]" class="form-control"><div ng-show="!edit[@{{pdf.pdf_id}}]" style="word-wrap:break-word">@{{ pdf.pricelist_file }}</div></td>
                   @if(Auth::user()->role_id == 1)
                   <td style="min-width:100px;">
@@ -232,6 +233,36 @@
                     </a>
                   </td>
                   <td><span ng-show="status">@{{ status }}</span></td>
+                </tr>
+              </table>
+            </div>
+          </div>
+          <div id="drop-setting3" class="tab-pane fade"  ng-controller="ProductsController">            
+            <div class="table-responsives">
+              <table class="table table-hover" >
+                <tr><th>Brand Name</th><th>Settings</th><th>Status</th></tr>
+                <tr ng-repeat="productBrand in productBrands">
+                  <td>@{{productBrand.brand_title}}</td>
+                  <td style="padding-right:30px;">
+                    <a type="button" name="button" class="btn btn-success btn-sm" ng-click="checkDeadlink($event,this)" >
+                    <span ng-show="!spinnerDeadlink">Check DeadLink</span>
+                    <span>
+                        <div id="circularG" ng-show="spinnerDeadlink">
+                          <div id="circularG_1" class="circularG"></div>
+                          <div id="circularG_2" class="circularG"></div>
+                          <div id="circularG_3" class="circularG"></div>
+                          <div id="circularG_4" class="circularG"></div>
+                          <div id="circularG_5" class="circularG"></div>
+                          <div id="circularG_6" class="circularG"></div>
+                          <div id="circularG_7" class="circularG"></div>
+                          <div id="circularG_8" class="circularG"></div>
+                        </div>
+                    </span>
+                    </a>
+                  </td>
+                  <td>
+                  <span ng-show="status">@{{ status }}</span>
+                  </td>
                 </tr>
               </table>
             </div>

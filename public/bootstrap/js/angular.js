@@ -11,8 +11,13 @@ var app = angular.module('myApp', ['angularUtils.directives.dirPagination','rzMo
   $scope.$on('LOAD', function(){$scope.loading =true});
   $scope.$on('UNLOAD', function(){$scope.loading =false});
   $scope.$on('HIDELATESTPRODUCT', function(){$scope.latestproduct = false;});
+  $scope.$on('maxbrand', function(){$scope.maxbrands = 0;});
   $scope.latestproduct = true;
+  $scope.hidesearchquery = true;
+  $scope.searchform = function(){
+    $scope.hidesearchquery = false;
 
+  }
 
   $scope.contactUs = function($event){
     $scope.contactus = true;
@@ -21,7 +26,10 @@ var app = angular.module('myApp', ['angularUtils.directives.dirPagination','rzMo
     $document.scrollToElementAnimated(scrollToFooter);
   }
 
-
+  var scrollToTop = angular.element(document.getElementById('body'));
+  $scope.goToTop = function(){
+    $document.scrollToElementAnimated(scrollToTop);
+  }
 }])
 .controller('newsletterController', function($scope, $http){
     $scope.$emit('LOAD');
@@ -125,7 +133,11 @@ var app = angular.module('myApp', ['angularUtils.directives.dirPagination','rzMo
         $scope.currentPage = 1;
         $scope.pageSize = 10;
         $scope.departments = response;
-
+        if($scope.departments.length == 0){
+          $scope.resulttitle = 'No product for '+$scope.title;
+        }else {
+          $scope.resulttitle = $scope.departments.length+' products for '+$scope.title;
+        }
     });
 
 
@@ -168,10 +180,13 @@ var app = angular.module('myApp', ['angularUtils.directives.dirPagination','rzMo
   $scope.changeToGrid = function(){
     $scope.showByList = false;
     $scope.showByGrid = true;
+    $scope.currentPage = 1;
+    $scope.pageSize = 12;
   }
   $scope.changeToList = function(){
     $scope.showByList = true;
     $scope.showByGrid = false;
+
   }
 
   $scope.select = function(item) {
@@ -185,45 +200,80 @@ var app = angular.module('myApp', ['angularUtils.directives.dirPagination','rzMo
       console.log('meals page changed to ' + num);
   };
 }])
-.controller('PaginateDepartmentController', function($scope){
+.controller('PaginateDepartmentController',['$scope','$document', function($scope,$document){
 
     $scope.pageChangeHandler = function(num) {
         console.log('going to page ' + num);
-      };
-})
+
+    };
+}])
 .controller('mainMenuController',['$scope','$http','$document', function($scope, $http,$document){
+
   $scope.searchResults = {};
-  $scope.currentPage2 = "";
-  $scope.pageSize2 = "";
-  // $scope.hideThis = true;
-  $scope.hideThisSearch = true;
+  $scope.currentPage = "";
+  $scope.pageSize3 = "";
+  $scope.hideQuery = true;
+  $scope.showByList = false;
+  $scope.showByGrid = false;
   var scrollTo = angular.element(document.getElementById('middle-header'));
   $scope.departmentSearch = function(query){
-
+    $scope.showByList = true;
     if(query == ""){
-      $scope.hideThisSearch = true;
+      $scope.hideQuery = true;
+      $scope.showByList = false;
     }else{
       $document.scrollToElementAnimated(scrollTo);
-      $http.get('/product/department/all/'+query).success(function(response){
-        $scope.hideThisSearch = false;
+      $http.get('/product/search/byquery/'+query).success(function(response){
+        $scope.hideQuery = false;
         $scope.currentPage = 1;
-        $scope.pageSize2 = 10;
+        $scope.pageSize3 = 10;
         $scope.searchResults = response;
+        if($scope.searchResults.length == 0){
+          $scope.resulttitle = 'No product found';
+        }else{
+          $scope.resulttitle = $scope.searchResults.length +' products found';
+        }
       });
     }
 
   }
-  $scope.pageChangeHandler2 = function(num) {
+
+  $scope.changeToList = function(){
+    $scope.showByList = true;
+    $scope.showByGrid = false;
+    $scope.currentPage = 1;
+    $scope.pageSize3= 10;
+  }
+
+  $scope.changeToGrid = function(){
+    $scope.showByList = false;
+    $scope.showByGrid = true;
+    $scope.currentPage = 1;
+    $scope.pageSize3 = 12;
+  }
+
+  $scope.gotoCategory = function(){
+    var scrollToCategory = angular.element(document.getElementById('middle-header'));
+    $document.scrollToElementAnimated(scrollToCategory);
+  }
+  $scope.gotoBrand = function(){
+    var scrollToBrand = angular.element(document.getElementById('middle-header'));
+    $document.scrollToElementAnimated(scrollToBrand);
+    
+  }
+  $scope.pageChangeHandler3 = function(num) {
       console.log('meals page changed to ' + num);
+
   }
 
 }])
-.controller('PaginateSearchController', function($scope){
-
-    $scope.pageChangeHandler2 = function(num) {
+.controller('PaginateSearchQueryController',['$scope','$document',function($scope, $document){
+    var scrollTo = angular.element(document.getElementById('middle-header'));
+    $scope.pageChangeHandler3 = function(num) {
         console.log('going to page ' + num);
+        $document.scrollToElementAnimated(scrollTo);
       };
-})
+}])
 .controller('searchformController', function($scope, $http){
 
   $scope.categories = {};
@@ -253,23 +303,57 @@ var app = angular.module('myApp', ['angularUtils.directives.dirPagination','rzMo
   };
   $scope.sliderConfig = { min: 0, max: 10000, step: 2 };
   //
-
-
+  $scope.currentPage = "";
+  $scope.pageSize3 = "";
+  $scope.searchFormResults = {};
+  $scope.showByList = false;
+  $scope.showByGrid = false;
+  $scope.hideThis = true;
   $scope.searchProducts = function($event){
     $event.preventDefault();
-    $scope.searchFormResults ={};
-    console.log($scope.search);
+
+    $scope.showByList = true;
+    $scope.showByGrid = false;
+    $scope.hideThis = false;
     $http({
-        url:"/product/search/all",
+        url:"/product/search/form",
         method: "POST",
         data: $.param($scope.search)
     }).success(function(response){
-        console.log(response);
+
+        $scope.currentPage = 1;
+        $scope.pageSize2 = 10;
+        $scope.searchFormResults = response;
+        if($scope.searchFormResults.length == 0){
+          $scope.resulttitle = 'No Product Found';
+        }else{
+            $scope.resulttitle = $scope.searchFormResults.length +' Products Found';
+        }
     });
   }
 
+  $scope.changeToList = function(){
+    $scope.showByList = true;
+    $scope.showByGrid = false;
+    $scope.currentPage = 1;
+    $scope.pageSize2= 10;
+  }
+  $scope.changeToGrid = function(){
+    $scope.showByList = false;
+    $scope.showByGrid = true;
+    $scope.currentPage = 1;
+    $scope.pageSize2 = 12;
+  }
+  $scope.pageChangeHandler2 = function(num) {
+      console.log('meals page changed to ' + num);
+  };
 
+})
+.controller('PaginateSearchFormController', function($scope){
 
+    $scope.pageChangeHandler2 = function(num) {
+        console.log('going to page ' + num);
+      };
 })
 .controller('productsController', function($scope, $http){
     $scope.products = {};
@@ -357,6 +441,26 @@ app.controller('compareProductController',function($scope, $http){
     }
     $scope.favorites = chunk(response, 3);
   });
+
+
+  $scope.delete = function($event, context){
+    $event.preventDefault();
+    $http({
+      method  : 'POST',
+      url     : '/favorite/remove/',
+      data    : $.param(context.favorite)
+     })
+      .success(function(response) {
+        function chunk(arr, size) {
+          var favorites = [];
+          for (var i=0; i<arr.length; i+=size) {
+            favorites.push(arr.slice(i, i+size));
+          }
+          return favorites;
+        }
+        $scope.favorites = chunk(response, 3);
+    });
+  }
 })
 .controller('productWidgetController', function($scope, $http){
   $scope.topVieweds = {};

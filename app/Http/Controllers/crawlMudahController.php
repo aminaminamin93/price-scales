@@ -38,7 +38,7 @@ class crawlMudahController extends Controller
     			$html = file_get_contents( $url );
     			$crawler->addContent($html);
 
-				global $rank;
+					global $rank;
 			    global $products;
 
 					$rank = $crawler->filter('h2.list_title.truncate a')->each(function ($crawler, $i) use (&$products)
@@ -71,21 +71,22 @@ class crawlMudahController extends Controller
 
 	        		++$rank;
 	        $i++;
-	        //print_r($products);
-	   		}
 
+	   		}
+	   		//dd($products);
 		});
 
    			//--------------insert data using model-----------------
    			foreach ($products as $pro)
    			{
-
-
-
 	   				if($category == 'Phones')
 	   				{
 	   					$category_id = 1;
-	   				}
+	   					$retailer_id = 1;
+	   				}else{
+	   					$category_id = 7;
+	   					$retailer_id = 1;
+					}
 
 	   				$arrProduct = explode(' ', $pro['title']);
 	   				$brands = \DB::table('brand')->whereIn('brand_title' , $arrProduct)->get();
@@ -95,78 +96,60 @@ class crawlMudahController extends Controller
 	   					{
 	   						$brand_id = $brand->id;
 	   					}
-	   				}
-	   				else
-	   				{
-	   					$brand_id = 21;
+	   				}else{
+	   					$brand_id = 1;
 	   				}
 
 	   				$product_name = $pro['title'];
-						$shopper_link = $pro['url'];
+					$shopper_link = $pro['url'];
 	   				$product_price = $pro['price'];
 	   				$picture_link = str_replace('thumbs', 'images', $pro['image']);
 	   				$product_location = $pro['location'];
 
 	   				if ($pro['condition'] == 'New')
-						{
-								$condition_id = 1;
-						}else
-						{
-		   					$condition_id = 2;
+					{
+						$condition_id = 1;
+					}else{
+		   				$condition_id = 2;
+					}
+
+					//----------------------------------------update products for change price-----------------------------------------
+					$product_id = 0;
+					$productExistFilter = $this->productExistFilter($product_name,$shopper_link,$picture_link,$brand_id,$product_id);
+					if($productExistFilter){
+						//this if $productExistFilter return true......will update product from database
+						if($product_id !== 0){
+							$product = Products::find($product_id);
+							$product_price_temp = $product->product_price;
+
+							$product->product_price = $product_price;
+							$product->product_price_temp = $product_price_temp;
+							$product->save();
 						}
 
-						$product_id = 0;
-						$productExistFilter = $this->productExistFilter($product_name ,$shopper_link,$picture_link,$brand_id,$product_id);
-						if($productExistFilter){
-							//this if $productExistFilter return true......will update product from database
-							if($product_id !== 0){
-								$product = Products::find($product_id);
-								$product_price_temp = $product->product_price;
+					}else{
 
-								$product->product_price = $product_price;
-								$product->product_price_temp = $product_price_temp;
-								$product->save();
-							}
-
-						}else{
-
-							//this if $productExistFilter return false........will create new product to database...
-
-							// $product = new Products;
-							// $product->product_name = $product_name;
-							// $product->product_price = $product_price;
-							// $product->product_price_temp = $product_price;
-							// $product->product_location = $product_location;
-							// $product->picture_link = $picture_link;
-							// $product->shopper_link = $shopper_link;
-							// $product->category_id = $category_id;
-							// $product->brand_id = $brand;
-							// $product->condition_id = $condition_id;
-							// 		$product->save();
-						}
+						//this if $productExistFilter return false........will create new product to database...
+						$product = new Products;
+						$product->product_name = $product_name;
+						$product->product_price = $product_price;
+						$product->product_price_temp = $product_price;
+						$product->product_location = $product_location;
+						$product->picture_link = $picture_link;
+						$product->shopper_link = $shopper_link;
+						$product->category_id = $category_id;
+						$product->brand_id = $brand_id;
+						$product->condition_id = $condition_id;
+						$product->retailer_id = $retailer_id;
+ 						$product->save();
+					}
+					//-------------------------------------------------------------------------------------------------------------------
 
    			}
    			//--------------------------------------------------------
 
-
    			return "<div class='alert alert-success'>Successfully crawler site</div>";
 	}
-	private function productExistFilter($product_name,$shopper_link,$picture_link,$brand_id, &$product_id){
-
-		$products = \DB::table('products')
-						->where('shopper_link', 'LIKE', $shopper_link)
-						->where('brand_id', '=', $brand_id)
-						->first();
-
-		if($products){
-			$product_id = $products->id;
-			return true; //means the product is exist
-		}else{
-			return false; //means the product is not exist
-		}
-	}
-
-
 
 
 	public function indexTablets()
@@ -228,7 +211,7 @@ class crawlMudahController extends Controller
 
 					++$rank;
 			$i++;
-			//print_r($products);
+			//dd($products);
 	   		}
 
 		});
@@ -237,13 +220,13 @@ class crawlMudahController extends Controller
    			foreach ($products as $pro)
    			{
 
-	   				$product = new Products;
-
 	   				if($category == 'Tablets')
 	   				{
-	   					$product->category_id = 2;
+	   					$category_id = 2;
+	   					$retailer_id = 1;
 	   				}else{
-	   					$product->category_id = 7;
+	   					$category_id = 7;
+	   					$retailer_id = 1;
 	   				}
 
 	   				$arrProduct = explode(' ', $pro['title']);
@@ -252,29 +235,56 @@ class crawlMudahController extends Controller
 	   				{
 	   					foreach ($brands as $brand)
 	   					{
-	   						$product->brand_id = $brand->id;
+	   						$brand_id = $brand->id;
 	   					}
-	   				}
-	   				else
-	   				{
-	   					$product->brand_id = 1;
+	   				}else{
+	   					$brand_id = 1;
 	   				}
 
-	   				$product->product_name = $pro['title'];
-					$product->shopper_link = $pro['url'];
-	   				$product->product_price = $pro['price'];
-	   				$product->picture_link = str_replace('thumbs', 'images', $pro['image']);
-	   				$product->product_location = $pro['location'];
+	   				$product_name = $pro['title'];
+					$shopper_link = $pro['url'];
+	   				$product_price = $pro['price'];
+	   				$picture_link = str_replace('thumbs', 'images', $pro['image']);
+	   				$product_location = $pro['location'];
 
 	   				if ($pro['condition'] == 'New')
 					{
-						$product->condition_id = 1;
-					}else
-					{
-	   					$product->condition_id = 2;
+						$condition_id = 1;
+					}else{
+	   					$condition_id = 2;
 					}
 
-	   				$product->save();
+	   				//----------------------------------------update products for change price-----------------------------------------
+					$product_id = 0;
+					$productExistFilter = $this->productExistFilter($product_name,$shopper_link,$picture_link,$brand_id,$product_id);
+					if($productExistFilter){
+						//this if $productExistFilter return true......will update product from database
+						if($product_id !== 0){
+							$product = Products::find($product_id);
+							$product_price_temp = $product->product_price;
+
+							$product->product_price = $product_price;
+							$product->product_price_temp = $product_price_temp;
+							$product->save();
+						}
+
+					}else{
+
+						//this if $productExistFilter return false........will create new product to database...
+						$product = new Products;
+						$product->product_name = $product_name;
+						$product->product_price = $product_price;
+						$product->product_price_temp = $product_price;
+						$product->product_location = $product_location;
+						$product->picture_link = $picture_link;
+						$product->shopper_link = $shopper_link;
+						$product->category_id = $category_id;
+						$product->brand_id = $brand_id;
+						$product->condition_id = $condition_id;
+						$product->retailer_id = $retailer_id;
+						$product->save();
+					}
+					//-------------------------------------------------------------------------------------------------------------------
    			}
    			//--------------------------------------------------------
    			return "<div class='alert alert-success'>Successfully crawler site</div>";
@@ -348,11 +358,13 @@ class crawlMudahController extends Controller
    			foreach ($products as $pro)
    			{
 
-	   				$product = new Products;
-
 	   				if($category == 'Desktops')
 	   				{
-	   					$product->category_id = 3;
+	   					$category_id = 3;
+	   					$retailer_id = 1;
+	   				}else{
+	   					$category_id = 7;
+	   					$retailer_id = 1;
 	   				}
 
 	   				$arrProduct = explode(' ', $pro['title']);
@@ -361,29 +373,56 @@ class crawlMudahController extends Controller
 	   				{
 	   					foreach ($brands as $brand)
 	   					{
-	   						$product->brand_id = $brand->id;
+	   						$brand_id = $brand->id;
 	   					}
-	   				}
-	   				else
-	   				{
-	   					$product->brand_id = 1;
+	   				}else{
+	   					$brand_id = 1;
 	   				}
 
-	   				$product->product_name = $pro['title'];
-					$product->shopper_link = $pro['url'];
-	   				$product->product_price = $pro['price'];
-	   				$product->picture_link = str_replace('thumbs', 'images', $pro['image']);
-	   				$product->product_location = $pro['location'];
+	   				$product_name = $pro['title'];
+					$shopper_link = $pro['url'];
+	   				$product_price = $pro['price'];
+	   				$picture_link = str_replace('thumbs', 'images', $pro['image']);
+	   				$product_location = $pro['location'];
 
 	   				if ($pro['condition'] == 'New')
 					{
-						$product->condition_id = 1;
-					}else
-					{
-	   					$product->condition_id = 2;
+						$condition_id = 1;
+					}else{
+	   					$condition_id = 2;
 					}
 
-	   				$product->save();
+	   				//----------------------------------------update products for change price-----------------------------------------
+					$product_id = 0;
+					$productExistFilter = $this->productExistFilter($product_name,$shopper_link,$picture_link,$brand_id,$product_id);
+					if($productExistFilter){
+						//this if $productExistFilter return true......will update product from database
+						if($product_id !== 0){
+							$product = Products::find($product_id);
+							$product_price_temp = $product->product_price;
+
+							$product->product_price = $product_price;
+							$product->product_price_temp = $product_price_temp;
+							$product->save();
+						}
+
+					}else{
+
+						//this if $productExistFilter return false........will create new product to database...
+						$product = new Products;
+						$product->product_name = $product_name;
+						$product->product_price = $product_price;
+						$product->product_price_temp = $product_price;
+						$product->product_location = $product_location;
+						$product->picture_link = $picture_link;
+						$product->shopper_link = $shopper_link;
+						$product->category_id = $category_id;
+						$product->brand_id = $brand_id;
+						$product->condition_id = $condition_id;
+						$product->retailer_id = $retailer_id;
+						$product->save();
+					}
+					//-------------------------------------------------------------------------------------------------------------------
    			}
    			//--------------------------------------------------------
    			return "<div class='alert alert-success'>Successfully crawler site</div>";
@@ -457,11 +496,13 @@ class crawlMudahController extends Controller
    			foreach ($products as $pro)
    			{
 
-	   				$product = new Products;
-
 	   				if($category == 'Notebooks')
 	   				{
-	   					$product->category_id = 3;
+	   					$category_id = 3;
+	   					$retailer_id = 1;
+	   				}else{
+	   					$category_id = 7;
+	   					$retailer_id = 1;
 	   				}
 
 	   				$arrProduct = explode(' ', $pro['title']);
@@ -470,29 +511,56 @@ class crawlMudahController extends Controller
 	   				{
 	   					foreach ($brands as $brand)
 	   					{
-	   						$product->brand_id = $brand->id;
+	   						$brand_id = $brand->id;
 	   					}
-	   				}
-	   				else
-	   				{
-	   					$product->brand_id = 1;
+	   				}else{
+	   					$brand_id = 1;
 	   				}
 
-	   				$product->product_name = $pro['title'];
-					$product->shopper_link = $pro['url'];
-	   				$product->product_price = $pro['price'];
-	   				$product->picture_link = str_replace('thumbs', 'images', $pro['image']);
-	   				$product->product_location = $pro['location'];
+	   				$product_name = $pro['title'];
+					$shopper_link = $pro['url'];
+	   				$product_price = $pro['price'];
+	   				$picture_link = str_replace('thumbs', 'images', $pro['image']);
+	   				$product_location = $pro['location'];
 
 	   				if ($pro['condition'] == 'New')
 					{
-						$product->condition_id = 1;
-					}else
-					{
-	   					$product->condition_id = 2;
+						$condition_id = 1;
+					}else{
+	   					$condition_id = 2;
 					}
 
-	   				$product->save();
+	   				//----------------------------------------update products for change price-----------------------------------------
+					$product_id = 0;
+					$productExistFilter = $this->productExistFilter($product_name,$shopper_link,$picture_link,$brand_id,$product_id);
+					if($productExistFilter){
+						//this if $productExistFilter return true......will update product from database
+						if($product_id !== 0){
+							$product = Products::find($product_id);
+							$product_price_temp = $product->product_price;
+
+							$product->product_price = $product_price;
+							$product->product_price_temp = $product_price_temp;
+							$product->save();
+						}
+
+					}else{
+
+						//this if $productExistFilter return false........will create new product to database...
+						$product = new Products;
+						$product->product_name = $product_name;
+						$product->product_price = $product_price;
+						$product->product_price_temp = $product_price;
+						$product->product_location = $product_location;
+						$product->picture_link = $picture_link;
+						$product->shopper_link = $shopper_link;
+						$product->category_id = $category_id;
+						$product->brand_id = $brand_id;
+						$product->condition_id = $condition_id;
+						$product->retailer_id = $retailer_id;
+						$product->save();
+					}
+					//-------------------------------------------------------------------------------------------------------------------
    			}
    			//--------------------------------------------------------
    			return "<div class='alert alert-success'>Successfully crawler site</div>";
@@ -567,11 +635,13 @@ class crawlMudahController extends Controller
    			foreach ($products as $pro)
    			{
 
-	   				$product = new Products;
-
 	   				if($category == 'Cameras & Lenses')
 	   				{
-	   					$product->category_id = 4;
+	   					$category_id = 4;
+	   					$retailer_id = 1;
+	   				}else{
+	   					$category_id = 7;
+	   					$retailer_id = 1;
 	   				}
 
 	   				$arrProduct = explode(' ', $pro['title']);
@@ -580,29 +650,56 @@ class crawlMudahController extends Controller
 	   				{
 	   					foreach ($brands as $brand)
 	   					{
-	   						$product->brand_id = $brand->id;
+	   						$brand_id = $brand->id;
 	   					}
-	   				}
-	   				else
-	   				{
-	   					$product->brand_id = 1;
+	   				}else{
+	   					$brand_id = 1;
 	   				}
 
-	   				$product->product_name = $pro['title'];
-					$product->shopper_link = $pro['url'];
-	   				$product->product_price = $pro['price'];
-	   				$product->picture_link = str_replace('thumbs', 'images', $pro['image']);
-	   				$product->product_location = $pro['location'];
+	   				$product_name = $pro['title'];
+					$shopper_link = $pro['url'];
+	   				$product_price = $pro['price'];
+	   				$picture_link = str_replace('thumbs', 'images', $pro['image']);
+	   				$product_location = $pro['location'];
 
 	   				if ($pro['condition'] == 'New')
 					{
-						$product->condition_id = 1;
-					}else
-					{
-	   					$product->condition_id = 2;
+						$condition_id = 1;
+					}else{
+	   					$condition_id = 2;
 					}
 
-	   				$product->save();
+	   				//----------------------------------------update products for change price-----------------------------------------
+					$product_id = 0;
+					$productExistFilter = $this->productExistFilter($product_name,$shopper_link,$picture_link,$brand_id,$product_id);
+					if($productExistFilter){
+						//this if $productExistFilter return true......will update product from database
+						if($product_id !== 0){
+							$product = Products::find($product_id);
+							$product_price_temp = $product->product_price;
+
+							$product->product_price = $product_price;
+							$product->product_price_temp = $product_price_temp;
+							$product->save();
+						}
+
+					}else{
+
+						//this if $productExistFilter return false........will create new product to database...
+						$product = new Products;
+						$product->product_name = $product_name;
+						$product->product_price = $product_price;
+						$product->product_price_temp = $product_price;
+						$product->product_location = $product_location;
+						$product->picture_link = $picture_link;
+						$product->shopper_link = $shopper_link;
+						$product->category_id = $category_id;
+						$product->brand_id = $brand_id;
+						$product->condition_id = $condition_id;
+						$product->retailer_id = $retailer_id;
+						$product->save();
+					}
+					//-------------------------------------------------------------------------------------------------------------------
    			}
    			//--------------------------------------------------------
    			return "<div class='alert alert-success'>Successfully crawler site</div>";
@@ -676,11 +773,13 @@ class crawlMudahController extends Controller
    			foreach ($products as $pro)
    			{
 
-	   				$product = new Products;
-
 	   				if($category == 'TVs')
 	   				{
-	   					$product->category_id = 5;
+	   					$category_id = 5;
+	   					$retailer_id = 1;
+	   				}else{
+	   					$category_id = 7;
+	   					$retailer_id = 1;
 	   				}
 
 	   				$arrProduct = explode(' ', $pro['title']);
@@ -689,29 +788,56 @@ class crawlMudahController extends Controller
 	   				{
 	   					foreach ($brands as $brand)
 	   					{
-	   						$product->brand_id = $brand->id;
+	   						$brand_id = $brand->id;
 	   					}
-	   				}
-	   				else
-	   				{
-	   					$product->brand_id = 1;
+	   				}else{
+	   					$brand_id = 1;
 	   				}
 
-	   				$product->product_name = $pro['title'];
-					$product->shopper_link = $pro['url'];
-	   				$product->product_price = $pro['price'];
-	   				$product->picture_link = str_replace('thumbs', 'images', $pro['image']);
-	   				$product->product_location = $pro['location'];
+	   				$product_name = $pro['title'];
+					$shopper_link = $pro['url'];
+	   				$product_price = $pro['price'];
+	   				$picture_link = str_replace('thumbs', 'images', $pro['image']);
+	   				$product_location = $pro['location'];
 
 	   				if ($pro['condition'] == 'New')
 					{
-						$product->condition_id = 1;
-					}else
-					{
-	   					$product->condition_id = 2;
+						$condition_id = 1;
+					}else{
+	   					$condition_id = 2;
 					}
 
-	   				$product->save();
+	   				//----------------------------------------update products for change price-----------------------------------------
+					$product_id = 0;
+					$productExistFilter = $this->productExistFilter($product_name,$shopper_link,$picture_link,$brand_id,$product_id);
+					if($productExistFilter){
+						//this if $productExistFilter return true......will update product from database
+						if($product_id !== 0){
+							$product = Products::find($product_id);
+							$product_price_temp = $product->product_price;
+
+							$product->product_price = $product_price;
+							$product->product_price_temp = $product_price_temp;
+							$product->save();
+						}
+
+					}else{
+
+						//this if $productExistFilter return false........will create new product to database...
+						$product = new Products;
+						$product->product_name = $product_name;
+						$product->product_price = $product_price;
+						$product->product_price_temp = $product_price;
+						$product->product_location = $product_location;
+						$product->picture_link = $picture_link;
+						$product->shopper_link = $shopper_link;
+						$product->category_id = $category_id;
+						$product->brand_id = $brand_id;
+						$product->condition_id = $condition_id;
+						$product->retailer_id = $retailer_id;
+						$product->save();
+					}
+					//-------------------------------------------------------------------------------------------------------------------
    			}
    			//--------------------------------------------------------
    			return "<div class='alert alert-success'>Successfully crawler site</div>";
@@ -774,7 +900,7 @@ class crawlMudahController extends Controller
 
 					++$rank;
 			$i++;
-			//print_r($products);
+			//dd($products);
 	   		}
 
 		});
@@ -783,11 +909,13 @@ class crawlMudahController extends Controller
    			foreach ($products as $pro)
    			{
 
-	   				$product = new Products;
-
 	   				if($category == 'Games & Consoles')
 	   				{
-	   					$product->category_id = 6;
+	   					$category_id = 6;
+	   					$retailer_id = 1;
+	   				}else{
+	   					$category_id = 7;
+	   					$retailer_id = 1;
 	   				}
 
 	   				$arrProduct = explode(' ', $pro['title']);
@@ -796,34 +924,86 @@ class crawlMudahController extends Controller
 	   				{
 	   					foreach ($brands as $brand)
 	   					{
-	   						$product->brand_id = $brand->id;
+	   						$brand_id = $brand->id;
 	   					}
-	   				}
-	   				else
-	   				{
-	   					$product->brand_id = 1;
+	   				}else{
+	   					$brand_id = 1;
 	   				}
 
-	   				$product->product_name = $pro['title'];
-					$product->shopper_link = $pro['url'];
-	   				$product->product_price = $pro['price'];
-	   				$product->picture_link = str_replace('thumbs', 'images', $pro['image']);
-	   				$product->product_location = $pro['location'];
+	   				$product_name = $pro['title'];
+					$shopper_link = $pro['url'];
+	   				$product_price = $pro['price'];
+	   				$picture_link = str_replace('thumbs', 'images', $pro['image']);
+	   				$product_location = $pro['location'];
 
 	   				if ($pro['condition'] == 'New')
 					{
-						$product->condition_id = 1;
-					}else
-					{
-	   					$product->condition_id = 2;
+						$condition_id = 1;
+					}else{
+	   					$condition_id = 2;
 					}
 
-	   				$product->save();
+	   				//----------------------------------------update products for change price-----------------------------------------
+					$product_id = 0;
+					$productExistFilter = $this->productExistFilter($product_name,$shopper_link,$picture_link,$brand_id,$product_id);
+					if($productExistFilter){
+						//this if $productExistFilter return true......will update product from database
+						if($product_id !== 0){
+							$product = Products::find($product_id);
+							$product_price_temp = $product->product_price;
+
+							$product->product_price = $product_price;
+							$product->product_price_temp = $product_price_temp;
+							$product->save();
+						}
+
+					}else{
+
+						//this if $productExistFilter return false........will create new product to database...
+						$product = new Products;
+						$product->product_name = $product_name;
+						$product->product_price = $product_price;
+						$product->product_price_temp = $product_price;
+						$product->product_location = $product_location;
+						$product->picture_link = $picture_link;
+						$product->shopper_link = $shopper_link;
+						$product->category_id = $category_id;
+						$product->brand_id = $brand_id;
+						$product->condition_id = $condition_id;
+						$product->retailer_id = $retailer_id;
+						$product->save();
+					}
+					//-------------------------------------------------------------------------------------------------------------------
    			}
    			//--------------------------------------------------------
    			return "<div class='alert alert-success'>Successfully crawler site</div>";
 	}
 
+
+
+	private function productExistFilter($product_name,$shopper_link,$picture_link,$brand_id, &$product_id){
+
+		$products = \DB::table('products')
+						->where('shopper_link', 'LIKE', $shopper_link)
+						->where('brand_id', '=', $brand_id)
+						->first();
+
+		if($products){
+			$product_id = $products->id;
+			return true; //means the product is exist
+		}else{
+			return false; //means the product is not exist
+		}
+	}
+
+	// check if url is valid
+
+
+
+
+
+
 }
+
 
 ?>

@@ -52,7 +52,7 @@ class AuthenticateUser{
   }
 
   private function getGithubUser($provider){
-  
+
     return $this->socialite->driver($provider)->user();
   }
 

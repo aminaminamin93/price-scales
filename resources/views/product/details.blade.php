@@ -30,9 +30,14 @@
                 <div class="product-action">
 
                   <div style="margin-left:10px;margin-top:10px;bottom: 0;">
-                      <a href="{!! $products->shopper_link !!}" class="btn btn-warning btn-xs" style="width:30%;"><i class="fa fa-shopping-cart"></i> Visit Store</a>
+                      @if($products->shopper_link !== '')
+                        <a href="{!! $products->shopper_link !!}" class="btn btn-warning btn-xs" style="width:30%;"><i class="fa fa-shopping-cart"></i> Visit Store</a>
+                      @else
+                        <a href="{!! $products->shopper_link !!}" class="btn btn-warning btn-xs" style="width:30%;" disabled><i class="fa fa-shopping-cart" title=""></i> no online shop</a>
+                      @endif
+
                       <a href="/product/compare/{!! $products->id !!}" class="btn btn-success btn-xs" style="width:30%;"><span class="glyphicon glyphicon-scale"></span> Compare</a>
-                      <a href="/product/favorite/{!! $products->id !!}" class="btn btn-primary btn-xs" style="width:30%;"><span class="glyphicon glyphicon-heart"></span> Favorite</a>
+                      <a href="/favorite/add/{!! $products->id !!}" class="btn btn-primary btn-xs" style="width:30%;"><span class="glyphicon glyphicon-heart"></span> Favorite</a>
                   </div>
                 </div>
               </fieldset>

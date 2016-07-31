@@ -30,7 +30,7 @@
                     {!! Form::password('password',['class'=>'form-control', 'placeholder'=>'Password']) !!}
 
                 </div>
-                
+
 
 
 
@@ -79,10 +79,11 @@
     <!-- Login using social account like facebook, twitter, and gmail-->
     <div class="row omb_row-sm-offset-3 omb_socialButtons">
         <div class="col-xs-4 col-sm-2">
-            <a href="/login/facebook" class="btn btn-lg btn-block omb_btn-facebook">
-                <i class="fa fa-facebook visible-xs"></i>
-                <span class="hidden-xs">Facebook</span>
-            </a>
+          
+          <a href="/login/facebook" class="btn btn-lg btn-block omb_btn-facebook">
+              <i class="fa fa-facebook visible-xs"></i>
+              <span class="hidden-xs">Facebook</span>
+          </a>
         </div>
         <div class="col-xs-4 col-sm-2">
             <a href="#" class="btn btn-lg btn-block omb_btn-twitter">

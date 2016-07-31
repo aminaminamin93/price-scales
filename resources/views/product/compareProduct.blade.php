@@ -30,8 +30,11 @@
             </div>
             <div class="product-action">
                 <div style="margin-left:10px;margin-top:10px;bottom: 0;">
-                    <a href="{!! $products->shopper_link !!}" class="btn btn-warning btn-xs" style="width:40%;"><i class="fa fa-shopping-cart"></i> Visit Store</a>
-
+                  @if($products->shopper_link !== '')
+                    <a href="{!! $products->shopper_link !!}" class="btn btn-warning btn-xs" style="width:45%;"><i class="fa fa-shopping-cart"></i> Visit Store</a>
+                  @else
+                    <a href="{!! $products->shopper_link !!}" class="btn btn-warning btn-xs" style="width:45%;" disabled><i class="fa fa-shopping-cart" title=""></i> no online shop</a>
+                  @endif
                     <a href="/product/favorite/{!! $products->id !!}" class="btn btn-primary btn-xs" style="width:40%;"><span class="glyphicon glyphicon-heart"></span> Favorite</a>
                 </div>
 
@@ -59,10 +62,14 @@
 
               @foreach($compareProducts as $compareProduct)
                 <tr>
-                    <td>{!! $compareProduct->retailer_name !!}</td><td>{!! $compareProduct->product_name !!}</td><td>{!! $compareProduct->condition_title !!}</td><td>RM {!! $compareProduct->product_price !!}</td>
+                    <td><a href="http://{!! $compareProduct->retailer_site !!}" target="_blank"><img src="{!! $compareProduct->picturelink !!}" alt="" /></a></td>
+                    <td>{!! $compareProduct->product_name !!}</td><td>{!! $compareProduct->condition_title !!}</td><td>RM {!! $compareProduct->product_price !!}</td>
                     <td>
-                      <a href="{{ $compareProduct->shopper_link }}" class="btn btn-warning btn-xs"><i class="fa fa-shopping-cart"></i> Visit Store</a>
-
+                      @if($compareProduct->shopper_link !== '')
+                        <a href="{!! $compareProduct->shopper_link !!}" class="btn btn-warning btn-xs"><i class="fa fa-shopping-cart"></i> Visit Store</a>
+                      @else
+                        <a href="{!! $compareProduct->shopper_link !!}" class="btn btn-warning btn-xs" disabled><i class="fa fa-shopping-cart" title=""></i> no online shop</a>
+                      @endif
                     </td>
 
                 </tr>

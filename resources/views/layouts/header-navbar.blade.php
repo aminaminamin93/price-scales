@@ -12,7 +12,7 @@
                     <li><a href="/auth/register"><i class="fa fa-user"></i>Register</a></li>
                 @endif
                 <li><a href="/favorite/view" style="text-decoration:none;"><i class="fa fa-heart"></i> Favorites</a></li>
-              
+
 
 
             </ul>
@@ -23,7 +23,7 @@
         <div class="header-right">
             <ul class="list-unstyled list-inline">
               <li class="dropdown dropdown-small">
-                  <a id="search-btn" style="text-decoration:none;">Search Here &nbsp;&nbsp;<span class="key"><i class="fa fa-search"></i></span></a>
+                  <a id="search-btn" style="text-decoration:none;cursor:pointer" ng-click="searchform()">Search Here &nbsp;&nbsp;<span class="key"><i class="fa fa-search"></i></span></a>
               </li>
               @if(Auth::check())
               <li class="dropdown dropdown-small">
@@ -31,9 +31,9 @@
 
               </li>
               @else
-                <li class="btn btn-social-icon btn-xs btn-facebook"><span class="fa fa-facebook"></span></li>
-                <li class="btn btn-social-icon btn-xs btn-twitter"><span class="fa fa-twitter"></span></li>
-                <li class="btn btn-social-icon btn-xs btn-google"><span class="fa fa-google"></span></li>
+                <li class="btn btn-social-icon btn-xs btn-facebook"><a href="/login/facebook"><span class="fa fa-facebook"></span></a></li>
+                <li class="btn btn-social-icon btn-xs btn-twitter"><a href="/login/twitter"><span class="fa fa-twitter"></span></a></li>
+                <li class="btn btn-social-icon btn-xs btn-google"><a href="/login/google"><span class="fa fa-google"></span></a></li>
               @endif
 
             </ul>

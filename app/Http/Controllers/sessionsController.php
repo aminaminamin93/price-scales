@@ -10,6 +10,7 @@ use View;
 use Input;
 use App\User;
 use App\Products;
+use App\Newsletter;
 use Redirect;
 use Session;
 use Carbon\carbon;
@@ -34,7 +35,7 @@ class sessionsController extends Controller
         return View::make('auth/register')->with('title', 'Registration');
     }
 
-    public function login(){
+    public function loginbyemail(){
 
 
         $user = new User;
@@ -48,12 +49,29 @@ class sessionsController extends Controller
         $user->updated_at = Carbon::now();
         $user->save();
 
+        if(Input::get('newsletter') == 'yes'){
+          $users = \DB::table('users')
+            ->where('user_email', '=', Input::get('email'))
+            ->first();
+          if($users){
+              $newsletterexist = Newsletter::where('subscripe_id','=', $users->id)->first();
+              if(!$newsletterexist){
+                $newsletter = new Newsletter;
+                $newsletter->subscripe_id = $users->id;
+                $newsletter->newsletter = 'login';
+                $newsletter->created_at = Carbon::now();
+                $newsletter->updated_at = Carbon::now();
+                $newsletter->save();
+              }
+
+          }
+        }
         if($user){
             $attempt = \Auth::attempt([
-                'user_email' => $input['email'],
-                'password' => $input['password']
+                'user_email' => Input::get('email'),
+                'password' => Input::get('password')
             ]);
-            if ($attempt) return \Redirect::intended('/home');
+            if ($attempt) return \Redirect::to('/');
             else {
                 return \Redirect::to('auth/login')->withInput(Input::except('password'))
                     ->with('alert-danger', 'Your email or password not valid.');
@@ -62,9 +80,10 @@ class sessionsController extends Controller
              return \Redirect::to('auth/login')->withInput(Input::except('password'))
                     ->with('alert-danger', 'Your email or password not valid.');
         }
-        //
-        // return View::make('auth/register')->with('title', 'Registration');
+
     }
+
+
 
     public function reset(){
         return View::make('auth/reset')->with('title', 'Forgot Password');
@@ -75,6 +94,9 @@ class sessionsController extends Controller
     public function create(){
 
         $input = Input::all();
+
+
+
         $rules = array(
             'firstname' => 'required|min:5|max:100',
             'lastname' => 'required|min:2|max:100',
@@ -89,10 +111,14 @@ class sessionsController extends Controller
                  return \Redirect::to('auth/register')->withInput(Input::except('password'))->withErrors($validator);
             else{
                 //store the new user
+                if(Input::has('newsletter')){
+                  $newsletter = $input['newsletter'];
+                }else{
+                  $newsletter = 'no';
+                }
 
-
-                    $data = array('firstname' => $input['firstname'] ,'lastname' => $input['lastname'] ,'email' => $input['user_email'],'password'=>$input['password']);
-                    $email =  Mail::send('email.confirmation-user', ['firstname' => $data['firstname'],'lastname' => $data['lastname'], 'email' => $data['email'], 'password'=>$data['password']], function ($message) use ($data) {
+                    $data = array('firstname' => $input['firstname'] ,'lastname' => $input['lastname'] ,'email' => $input['user_email'],'password'=>$input['password'], 'newsletter'=>$newsletter);
+                    $email =  Mail::send('email.confirmation-user', ['firstname' => $data['firstname'],'lastname' => $data['lastname'], 'email' => $data['email'], 'password'=>$data['password'], 'newsletter'=>$data['newsletter']], function ($message) use ($data) {
 
                         $message->to($data['email'], $data['password'])->subject('Confirm your account');
                     });
@@ -102,6 +128,9 @@ class sessionsController extends Controller
                    if($email){
                         Session::flash('email_confirmation', 'Confirmation email has been sent to your email address '.$input['user_email']);
                        return \View::make('auth/login')->with('mailserver', $mailserver[1])->with('title', 'Login');
+                   }else{
+                      Session::flash('email_confirmation', 'Your email not valid. Please check your email!');
+                      return \View::make('auth/login')->with('title', 'Login');
                    }
 
 
@@ -136,7 +165,7 @@ class sessionsController extends Controller
             if ($attempt) {
                 $products = Products::all();
 
-                return \Redirect::intended('/home')->with('products', $products);
+                return \Redirect::intended('/')->with('products', $products);
             }else {
 
                 return \Redirect::to('auth/login')->withInput(Input::except('password'))
@@ -229,13 +258,16 @@ class sessionsController extends Controller
       if ($validator->fails()) {
           return \Redirect::to('auth/recover_password')->withInput()->withErrors($validator);
       }else{
-          if(User::where('user_email',$input['user_email'])->first()){
+          if($users = User::where('user_email',$input['user_email'])->first()){
 
-            Session::flash('alert-success','Your password has been updated,try to login');
-            return \Redirect::to('auth/login')->with('title','Login');
+             $users->password = bcrypt($input['password']);
+             $users->save();
+
+             Session::flash('alert-success','Your password has been updated,try to login');
+             return \Redirect::to('auth/login')->with('title','Login');
           }else{
 
-            Session::flash('alert-danger','Your password not updated,Please check your email');
+            Session::flash('alert-danger','Your password not update,Please check your email');
             return \Redirect::to('auth/recover_password')->with('title','Reset Password');
           }
 

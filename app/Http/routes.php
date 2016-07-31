@@ -55,7 +55,7 @@ Route::get('/email/view/', function(){
   return View::make('/email/index');
 });
 Route::get('/sending/email', 'newsletterController@index');
-//
+
 //Route::get('/', function() {
 //    $products = Products::all();
 //
@@ -84,16 +84,17 @@ get('login/cancel', function(){ return View::make('/');   });
 //end of socialite authentication
 Route::get('/', array('as'=>'home', 'uses'=>'productsController@home'));
 
+
 Route::get('/auth/login', array('uses'=>'sessionsController@index'));
 Route::get('/auth/login/{email}','sessionsController@login_newsletter'); //login from newsletter
 Route::get('/logout', array('middleware'=>'auth', 'uses'=>'sessionsController@destroy'));
 Route::resource('sessions', 'sessionsController@store');
-Route::get('/user_register_confirm', 'sessionsController@login');
+Route::get('/user_register_confirm', 'sessionsController@loginbyemail');
 
 Route::get('/auth/register', array('before'=>'CSRF', 'uses'=>'sessionsController@register') );
 Route::get('/auth/reset', array('as'=>'reset_password', 'uses'=>'sessionsController@reset') );
 Route::post('/reset', 'sessionsController@email');
-Route::post('/password/recover/', 'sessionsController@recover');
+Route::post('/password/recover/{provider_id}', 'sessionsController@recover');
 Route::get('/auth/recover_password/{provider}', 'sessionsController@recoverPassword');
 Route::post('/create', 'sessionsController@create');
 Route::post('/contact/sending', 'messageController@contactUs');
@@ -113,12 +114,12 @@ Route::get('/product/viewall', 'productsController@index');
 Route::get('/favorite/view', array('middleware' => 'auth','uses'=>'FavoriteController@index'));
 Route::get('/favorite/add/{id}', array('middleware'=>'auth' , 'uses'=>'FavoriteController@create'));
 Route::get('/favorite/list', array('middleware'=>'auth' , 'uses'=>'FavoriteController@favorites'));
-Route::get('/favorite/remove/{id}', array('middleware'=>'auth' , 'uses'=>'FavoriteController@destroy'));
+Route::post('/favorite/remove/', array('middleware'=>'auth' , 'uses'=>'FavoriteController@destroy'));
 Route::get('/product/list-all', 'productsController@listAll');
 Route::get('/product/list-category', 'categoryController@index');
 Route::get('/product/list-brands', 'brandController@index');
 Route::get('/product/list-conditions', 'conditionController@index');
-Route::post('/product/search/all', 'productsController@searchByForm');
+Route::post('/product/search/form', 'productsController@searchByForm');
 
 //products widget area
 Route::get('/products/topViewed', 'productsController@topViewed');
@@ -130,7 +131,7 @@ Route::get('/product/department/allbrand/', 'brandController@allbrand');
 Route::post('/product/department/category/', 'categoryController@category');
 Route::post('/product/department/brand/', 'brandController@brand');
 
-Route::get('/product/department/all/{data}', 'productsController@products');
+Route::get('/product/search/byquery/{data}', 'productsController@searchByQuery');
 
 
 
@@ -306,7 +307,9 @@ Route::get('total-mailbox', array('middleware' => 'administrator', 'uses'=>'mess
 //pdf parser Routing
 Route::get('pdfparser', 'PdfParserController@index');
 
-
+Route::get('/admin/product/brand', array('middleware' => 'administrator', 'uses'=>'brandController@index'));
+Route::post('/admin/product/checkdeadlink', array('middleware'=>'administrator', 'uses'=>'CrawlerController@checkDeadLink'));
+Route::post('/admin/product/delete', array('middleware'=>'administrator', 'uses'=>'CrawlerController@deleteDeadlink'));
 
 // -----------------Route for Website crawler-----------------------------
 

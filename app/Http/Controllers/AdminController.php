@@ -72,7 +72,6 @@ class AdminController extends Controller
         ->get();
       
       return $users;
-      // return "ajax reach";
     }
 
     public function profile($id){
@@ -86,9 +85,7 @@ class AdminController extends Controller
     public function crawler(Request $request){
 
             $pdfs = Pdf::all();
-            // $pricelists = Pdf::all();
             $result = "<div class='crawler_list'><div class='row'>";
-
 
             $result = $result."<h4>PDF</h4><ul class='list-crawler'>";
             foreach ($pdfs as $pdf) {
@@ -104,21 +101,13 @@ class AdminController extends Controller
             }
             $result = $result."</ul></div><div class='row'>";
             $websites = Website::all();
-            // $pricelists = Pdf::all();
+
             $result = $result."<button type='button' class='btn btn-xs' id='progress'>Progress</button>". "<h4>WEBSITE</h4>";
             foreach ($websites as $website) {
-              // $retailers = \DB::table('retailers')->where('id', '=', $pdf->pricelist->retailer_id )->get();
-              // foreach ($retailers as $retailer) {
-              //   $result = $result. $retailer->retailer_name;
-              // }
               $result = $result. $website->crawler->id;
-
             }
             $result = $result."</div></div>";
             return $result;
-            // foreach ($pricelists as $pricelist) {
-            //
-            // }
     }
 
     public function save(Request $request)
@@ -134,57 +123,6 @@ class AdminController extends Controller
         }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy()
     {
 

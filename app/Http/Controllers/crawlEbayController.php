@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Products;
+use DB;
 
 class crawlEbayController extends Controller
 {
@@ -79,16 +80,18 @@ class crawlEbayController extends Controller
 		//-------------insert data using model--------------
    			foreach ($products as $pro) 
    			{
-
-   				$product = new Products;
    				
    				if($category == 'Mobile Phones')
    				{
-   					$product->category_id = 1;
+   					$category_id = 1;
+   				}else{
+   					$category_id = 7;
    				}
+
    				if($condition == 'New(selected)')
    				{
-   					$product->condition_id = 1;
+   					$condition_id = 1;
+   					$retailer_id = 3;
    				}
 
    				$arrProduct = explode(' ', $pro['title']);	
@@ -97,23 +100,54 @@ class crawlEbayController extends Controller
 		   		{
 		   			foreach ($brands as $brand) 
 		   			{
-		   				$product->brand_id = $brand->id;
+		   				$brand_id = $brand->id;
 		   			}	
-		   		}
-		   		else
-		   		{
-		   			$product->brand_id = 204;
+		   		}else{
+		   			$brand_id = 1;
 		   		}
    				
-   				$product->product_name = $pro['title'];
-   				$product->shopper_link = $pro['url'];
-   				$product->product_price = $pro['price'];
-   				$product->picture_link = $pro['image'];
-   				$product->product_shipping = $pro['shipping'];
+   				$product_name = $pro['title'];
+   				$shopper_link = $pro['url'];
+   				$product_price = $pro['price'];
+   				$picture_link = $pro['image'];
+   				$product_shipping = $pro['shipping'];
    				
-   				$product->save();
+   				//----------------------------------------update products for change price-----------------------------------------
+				$product_id = 0;
+				$productExistFilter = $this->productExistFilter($product_name,$shopper_link,$picture_link,$brand_id,$product_id);
+				if($productExistFilter){
+					//this if $productExistFilter return true......will update product from database
+					if($product_id !== 0){
+						$product = Products::find($product_id);
+						$product_price_temp = $product->product_price;
+
+						$product->product_price = $product_price;
+						$product->product_price_temp = $product_price_temp;
+						$product->save();
+					}
+
+				}else{
+
+					//this if $productExistFilter return false........will create new product to database...
+					$product = new Products;
+					$product->product_name = $product_name;
+					$product->product_price = $product_price;
+					$product->product_price_temp = $product_price;
+					$product->product_shipping = $product_shipping;
+					$product->picture_link = $picture_link;
+					$product->shopper_link = $shopper_link;
+					$product->category_id = $category_id;
+					$product->brand_id = $brand_id;
+					$product->condition_id = $condition_id;
+					$product->retailer_id = $retailer_id;
+					$product->save();
+				}
+				//-------------------------------------------------------------------------------------------------------------------
+
    			}
    		//---------------------------------------------------
+
+   		return "<div class='alert alert-success'>Successfully crawler site</div>";
 	}
 
 	public function indexUsedPhones()
@@ -175,16 +209,18 @@ class crawlEbayController extends Controller
 		//---------------insert data using model---------------
    			foreach ($products as $pro) 
    			{
-
-   				$product = new Products;
    				
    				if($category == 'Mobile Phones')
    				{
-   					$product->category_id = 1;
+   					$category_id = 1;
+   				}else{
+   					$category_id = 7;
    				}
+
    				if($condition == 'Used(selected)')
    				{
-   					$product->condition_id = 2;
+   					$condition_id = 2;
+   					$retailer_id = 3;
    				}
 
    				$arrProduct = explode(' ', $pro['title']);	
@@ -193,23 +229,54 @@ class crawlEbayController extends Controller
 		   		{
 		   			foreach ($brands as $brand) 
 		   			{
-		   				$product->brand_id = $brand->id;
+		   				$brand_id = $brand->id;
 		   			}	
-		   		}
-		   		else
-		   		{
-		   			$product->brand_id = 204;
+		   		}else{
+		   			$brand_id = 1;
 		   		}
    				
-   				$product->product_name = $pro['title'];
-   				$product->shopper_link = $pro['url'];
-   				$product->product_price = $pro['price'];
-   				$product->picture_link = $pro['image'];
-   				$product->product_shipping = $pro['shipping'];
+   				$product_name = $pro['title'];
+   				$shopper_link = $pro['url'];
+   				$product_price = $pro['price'];
+   				$picture_link = $pro['image'];
+   				$product_shipping = $pro['shipping'];
    				
-   				$product->save();
+   				//----------------------------------------update products for change price-----------------------------------------
+				$product_id = 0;
+				$productExistFilter = $this->productExistFilter($product_name,$shopper_link,$picture_link,$brand_id,$product_id);
+				if($productExistFilter){
+					//this if $productExistFilter return true......will update product from database
+					if($product_id !== 0){
+						$product = Products::find($product_id);
+						$product_price_temp = $product->product_price;
+
+						$product->product_price = $product_price;
+						$product->product_price_temp = $product_price_temp;
+						$product->save();
+					}
+
+				}else{
+
+					//this if $productExistFilter return false........will create new product to database...
+					$product = new Products;
+					$product->product_name = $product_name;
+					$product->product_price = $product_price;
+					$product->product_price_temp = $product_price;
+					$product->product_shipping = $product_shipping;
+					$product->picture_link = $picture_link;
+					$product->shopper_link = $shopper_link;
+					$product->category_id = $category_id;
+					$product->brand_id = $brand_id;
+					$product->condition_id = $condition_id;
+					$product->retailer_id = $retailer_id;
+					$product->save();
+				}
+				//-------------------------------------------------------------------------------------------------------------------
+
    			}
    		//-----------------------------------------------------
+
+   		return "<div class='alert alert-success'>Successfully crawler site</div>";
 	}
 
 	public function indexNewTablets()
@@ -271,16 +338,18 @@ class crawlEbayController extends Controller
 		//---------------insert data using model---------------
    			foreach ($products as $pro) 
    			{
-
-   				$product = new Products;
    				
    				if($category == 'iPads, Tablets, eReaders')
    				{
-   					$product->category_id = 2;
+   					$category_id = 2;
+   				}else{
+   					$category_id = 7;
    				}
+
    				if($condition == 'New(selected)')
    				{
-   					$product->condition_id = 1;
+   					$condition_id = 1;
+   					$retailer_id = 3;
    				}
 
    				$arrProduct = explode(' ', $pro['title']);	
@@ -289,23 +358,54 @@ class crawlEbayController extends Controller
 		   		{
 		   			foreach ($brands as $brand) 
 		   			{
-		   				$product->brand_id = $brand->id;
+		   				$brand_id = $brand->id;
 		   			}	
-		   		}
-		   		else
-		   		{
-		   			$product->brand_id = 204;
+		   		}else{
+		   			$brand_id = 1;
 		   		}
    				
-   				$product->product_name = $pro['title'];
-   				$product->shopper_link = $pro['url'];
-   				$product->product_price = $pro['price'];
-   				$product->picture_link = $pro['image'];
-   				$product->product_shipping = $pro['shipping'];
+   				$product_name = $pro['title'];
+   				$shopper_link = $pro['url'];
+   				$product_price = $pro['price'];
+   				$picture_link = $pro['image'];
+   				$product_shipping = $pro['shipping'];
    				
-   				$product->save();
+   				//----------------------------------------update products for change price-----------------------------------------
+				$product_id = 0;
+				$productExistFilter = $this->productExistFilter($product_name,$shopper_link,$picture_link,$brand_id,$product_id);
+				if($productExistFilter){
+					//this if $productExistFilter return true......will update product from database
+					if($product_id !== 0){
+						$product = Products::find($product_id);
+						$product_price_temp = $product->product_price;
+
+						$product->product_price = $product_price;
+						$product->product_price_temp = $product_price_temp;
+						$product->save();
+					}
+
+				}else{
+
+					//this if $productExistFilter return false........will create new product to database...
+					$product = new Products;
+					$product->product_name = $product_name;
+					$product->product_price = $product_price;
+					$product->product_price_temp = $product_price;
+					$product->product_shipping = $product_shipping;
+					$product->picture_link = $picture_link;
+					$product->shopper_link = $shopper_link;
+					$product->category_id = $category_id;
+					$product->brand_id = $brand_id;
+					$product->condition_id = $condition_id;
+					$product->retailer_id = $retailer_id;
+					$product->save();
+				}
+				//-------------------------------------------------------------------------------------------------------------------
+
    			}
    		//-----------------------------------------------------
+
+   		return "<div class='alert alert-success'>Successfully crawler site</div>";
 	}
 
 	public function indexUsedTablets()
@@ -367,16 +467,18 @@ class crawlEbayController extends Controller
 		//---------------insert data using model---------------
    			foreach ($products as $pro) 
    			{
-
-   				$product = new Products;
    				
    				if($category == 'iPads, Tablets, eReaders')
    				{
-   					$product->category_id = 2;
+   					$category_id = 2;
+   				}else{
+   					$category_id = 7;
    				}
+
    				if($condition == 'Used(selected)')
    				{
-   					$product->condition_id = 2;
+   					$condition_id = 2;
+   					$retailer_id = 3;
    				}
 
    				$arrProduct = explode(' ', $pro['title']);	
@@ -385,23 +487,56 @@ class crawlEbayController extends Controller
 		   		{
 		   			foreach ($brands as $brand) 
 		   			{
-		   				$product->brand_id = $brand->id;
+		   				$brand_id = $brand->id;
 		   			}	
 		   		}
 		   		else
 		   		{
-		   			$product->brand_id = 204;
+		   			$brand_id = 1;
 		   		}
    				
-   				$product->product_name = $pro['title'];
-   				$product->shopper_link = $pro['url'];
-   				$product->product_price = $pro['price'];
-   				$product->picture_link = $pro['image'];
-   				$product->product_shipping = $pro['shipping'];
+   				$product_name = $pro['title'];
+   				$shopper_link = $pro['url'];
+   				$product_price = $pro['price'];
+   				$picture_link = $pro['image'];
+   				$product_shipping = $pro['shipping'];
    				
-   				$product->save();
+   				//----------------------------------------update products for change price-----------------------------------------
+				$product_id = 0;
+				$productExistFilter = $this->productExistFilter($product_name,$shopper_link,$picture_link,$brand_id,$product_id);
+				if($productExistFilter){
+					//this if $productExistFilter return true......will update product from database
+					if($product_id !== 0){
+						$product = Products::find($product_id);
+						$product_price_temp = $product->product_price;
+
+						$product->product_price = $product_price;
+						$product->product_price_temp = $product_price_temp;
+						$product->save();
+					}
+
+				}else{
+
+					//this if $productExistFilter return false........will create new product to database...
+					$product = new Products;
+					$product->product_name = $product_name;
+					$product->product_price = $product_price;
+					$product->product_price_temp = $product_price;
+					$product->product_shipping = $product_shipping;
+					$product->picture_link = $picture_link;
+					$product->shopper_link = $shopper_link;
+					$product->category_id = $category_id;
+					$product->brand_id = $brand_id;
+					$product->condition_id = $condition_id;
+					$product->retailer_id = $retailer_id;
+					$product->save();
+				}
+				//-------------------------------------------------------------------------------------------------------------------
+
    			}
    		//-----------------------------------------------------
+
+   		return "<div class='alert alert-success'>Successfully crawler site</div>";
 	}
 
 	public function indexNewNotebooks()
@@ -463,16 +598,18 @@ class crawlEbayController extends Controller
 		//---------------insert data using model---------------
    			foreach ($products as $pro) 
    			{
-
-   				$product = new Products;
    				
    				if($category == 'Laptops & Netbooks')
    				{
-   					$product->category_id = 3;
+   					$category_id = 3;
+   				}else{
+   					$category_id = 7;
    				}
+
    				if($condition == 'New(selected)')
    				{
-   					$product->condition_id = 1;
+   					$condition_id = 1;
+   					$retailer_id = 3;
    				}
 
    				$arrProduct = explode(' ', $pro['title']);	
@@ -481,23 +618,54 @@ class crawlEbayController extends Controller
 		   		{
 		   			foreach ($brands as $brand) 
 		   			{
-		   				$product->brand_id = $brand->id;
+		   				$brand_id = $brand->id;
 		   			}	
-		   		}
-		   		else
-		   		{
-		   			$product->brand_id = 204;
+		   		}else{
+		   			$brand_id = 1;
 		   		}
    				
-   				$product->product_name = $pro['title'];
-   				$product->shopper_link = $pro['url'];
-   				$product->product_price = $pro['price'];
-   				$product->picture_link = $pro['image'];
-   				$product->product_shipping = $pro['shipping'];
+   				$product_name = $pro['title'];
+   				$shopper_link = $pro['url'];
+   				$product_price = $pro['price'];
+   				$picture_link = $pro['image'];
+   				$product_shipping = $pro['shipping'];
    				
-   				$product->save();
+   				//----------------------------------------update products for change price-----------------------------------------
+				$product_id = 0;
+				$productExistFilter = $this->productExistFilter($product_name,$shopper_link,$picture_link,$brand_id,$product_id);
+				if($productExistFilter){
+					//this if $productExistFilter return true......will update product from database
+					if($product_id !== 0){
+						$product = Products::find($product_id);
+						$product_price_temp = $product->product_price;
+
+						$product->product_price = $product_price;
+						$product->product_price_temp = $product_price_temp;
+						$product->save();
+					}
+
+				}else{
+
+					//this if $productExistFilter return false........will create new product to database...
+					$product = new Products;
+					$product->product_name = $product_name;
+					$product->product_price = $product_price;
+					$product->product_price_temp = $product_price;
+					$product->product_shipping = $product_shipping;
+					$product->picture_link = $picture_link;
+					$product->shopper_link = $shopper_link;
+					$product->category_id = $category_id;
+					$product->brand_id = $brand_id;
+					$product->condition_id = $condition_id;
+					$product->retailer_id = $retailer_id;
+					$product->save();
+				}
+				//-------------------------------------------------------------------------------------------------------------------
+
    			}
    		//-----------------------------------------------------
+
+   		return "<div class='alert alert-success'>Successfully crawler site</div>";	
 	}
 
 	public function indexUsedNotebooks()
@@ -559,16 +727,18 @@ class crawlEbayController extends Controller
 		//---------------insert data using model---------------
    			foreach ($products as $pro) 
    			{
-
-   				$product = new Products;
    				
    				if($category == 'Laptops & Netbooks')
    				{
-   					$product->category_id = 3;
+   					$category_id = 3;
+   				}else{
+   					$category_id = 7;
    				}
+
    				if($condition == 'Used(selected)')
    				{
-   					$product->condition_id = 2;
+   					$condition_id = 2;
+   					$retailer_id = 3;
    				}
 
    				$arrProduct = explode(' ', $pro['title']);	
@@ -577,23 +747,54 @@ class crawlEbayController extends Controller
 		   		{
 		   			foreach ($brands as $brand) 
 		   			{
-		   				$product->brand_id = $brand->id;
+		   				$brand_id = $brand->id;
 		   			}	
-		   		}
-		   		else
-		   		{
-		   			$product->brand_id = 204;
+		   		}else{
+		   			$brand_id = 1;
 		   		}
    				
-   				$product->product_name = $pro['title'];
-   				$product->shopper_link = $pro['url'];
-   				$product->product_price = $pro['price'];
-   				$product->picture_link = $pro['image'];
-   				$product->product_shipping = $pro['shipping'];
+   				$product_name = $pro['title'];
+   				$shopper_link = $pro['url'];
+   				$product_price = $pro['price'];
+   				$picture_link = $pro['image'];
+   				$product_shipping = $pro['shipping'];
    				
-   				$product->save();
+   				//----------------------------------------update products for change price-----------------------------------------
+				$product_id = 0;
+				$productExistFilter = $this->productExistFilter($product_name,$shopper_link,$picture_link,$brand_id,$product_id);
+				if($productExistFilter){
+					//this if $productExistFilter return true......will update product from database
+					if($product_id !== 0){
+						$product = Products::find($product_id);
+						$product_price_temp = $product->product_price;
+
+						$product->product_price = $product_price;
+						$product->product_price_temp = $product_price_temp;
+						$product->save();
+					}
+
+				}else{
+
+					//this if $productExistFilter return false........will create new product to database...
+					$product = new Products;
+					$product->product_name = $product_name;
+					$product->product_price = $product_price;
+					$product->product_price_temp = $product_price;
+					$product->product_shipping = $product_shipping;
+					$product->picture_link = $picture_link;
+					$product->shopper_link = $shopper_link;
+					$product->category_id = $category_id;
+					$product->brand_id = $brand_id;
+					$product->condition_id = $condition_id;
+					$product->retailer_id = $retailer_id;
+					$product->save();
+				}
+				//-------------------------------------------------------------------------------------------------------------------
+
    			}
    		//-----------------------------------------------------
+
+   		return "<div class='alert alert-success'>Successfully crawler site</div>";	
 	}
 
 	public function indexNewCameras()
@@ -664,15 +865,17 @@ class crawlEbayController extends Controller
    			foreach ($products as $pro) 
    			{
 
-   				$product = new Products;
-   				
    				if($category == 'Digital Cameras')
    				{
-   					$product->category_id = 4;
+   					$category_id = 4;
+   				}else{
+   					$category_id = 7;
    				}
+
    				if($condition == 'New(selected)')
    				{
-   					$product->condition_id = 1;
+   					$condition_id = 1;
+   					$retailer_id = 3;
    				}
 
    				$arrProduct = explode(' ', $pro['title']);	
@@ -681,23 +884,54 @@ class crawlEbayController extends Controller
 		   		{
 		   			foreach ($brands as $brand) 
 		   			{
-		   				$product->brand_id = $brand->id;
+		   				$brand_id = $brand->id;
 		   			}	
-		   		}
-		   		else
-		   		{
-		   			$product->brand_id = 204;
+		   		}else{
+		   			$brand_id = 1;
 		   		}
    				
-   				$product->product_name = $pro['title'];
-   				$product->shopper_link = $pro['url'];
-   				$product->product_price = $pro['price'];
-   				$product->picture_link = $pro['image'];
-   				$product->product_shipping = $pro['shipping'];
+   				$product_name = $pro['title'];
+   				$shopper_link = $pro['url'];
+   				$product_price = $pro['price'];
+   				$picture_link = $pro['image'];
+   				$product_shipping = $pro['shipping'];
    				
-   				$product->save();
+   				//----------------------------------------update products for change price-----------------------------------------
+				$product_id = 0;
+				$productExistFilter = $this->productExistFilter($product_name,$shopper_link,$picture_link,$brand_id,$product_id);
+				if($productExistFilter){
+					//this if $productExistFilter return true......will update product from database
+					if($product_id !== 0){
+						$product = Products::find($product_id);
+						$product_price_temp = $product->product_price;
+
+						$product->product_price = $product_price;
+						$product->product_price_temp = $product_price_temp;
+						$product->save();
+					}
+
+				}else{
+
+					//this if $productExistFilter return false........will create new product to database...
+					$product = new Products;
+					$product->product_name = $product_name;
+					$product->product_price = $product_price;
+					$product->product_price_temp = $product_price;
+					$product->product_shipping = $product_shipping;
+					$product->picture_link = $picture_link;
+					$product->shopper_link = $shopper_link;
+					$product->category_id = $category_id;
+					$product->brand_id = $brand_id;
+					$product->condition_id = $condition_id;
+					$product->retailer_id = $retailer_id;
+					$product->save();
+				}
+				//-------------------------------------------------------------------------------------------------------------------
+
    			}
    		//---------------------------------------------------
+
+   		return "<div class='alert alert-success'>Successfully crawler site</div>";	
 	}
 
 	public function indexUsedCameras()
@@ -759,16 +993,18 @@ class crawlEbayController extends Controller
 		//---------------insert data using model---------------
    			foreach ($products as $pro) 
    			{
-
-   				$product = new Products;
    				
    				if($category == 'Digital Cameras')
    				{
-   					$product->category_id = 4;
+   					$category_id = 4;
+   				}else{
+   					$category_id = 7;
    				}
+
    				if($condition == 'Used(selected)')
    				{
-   					$product->condition_id = 2;
+   					$condition_id = 2;
+   					$retailer_id = 3;
    				}
 
    				$arrProduct = explode(' ', $pro['title']);	
@@ -777,23 +1013,54 @@ class crawlEbayController extends Controller
 		   		{
 		   			foreach ($brands as $brand) 
 		   			{
-		   				$product->brand_id = $brand->id;
+		   				$brand_id = $brand->id;
 		   			}	
-		   		}
-		   		else
-		   		{
-		   			$product->brand_id = 204;
+		   		}else{
+		   			$brand_id = 1;
 		   		}
    				
-   				$product->product_name = $pro['title'];
-   				$product->shopper_link = $pro['url'];
-   				$product->product_price = $pro['price'];
-   				$product->picture_link = $pro['image'];
-   				$product->product_shipping = $pro['shipping'];
+   				$product_name = $pro['title'];
+   				$shopper_link = $pro['url'];
+   				$product_price = $pro['price'];
+   				$picture_link = $pro['image'];
+   				$product_shipping = $pro['shipping'];
    				
-   				$product->save();
+   				//----------------------------------------update products for change price-----------------------------------------
+				$product_id = 0;
+				$productExistFilter = $this->productExistFilter($product_name,$shopper_link,$picture_link,$brand_id,$product_id);
+				if($productExistFilter){
+					//this if $productExistFilter return true......will update product from database
+					if($product_id !== 0){
+						$product = Products::find($product_id);
+						$product_price_temp = $product->product_price;
+
+						$product->product_price = $product_price;
+						$product->product_price_temp = $product_price_temp;
+						$product->save();
+					}
+
+				}else{
+
+					//this if $productExistFilter return false........will create new product to database...
+					$product = new Products;
+					$product->product_name = $product_name;
+					$product->product_price = $product_price;
+					$product->product_price_temp = $product_price;
+					$product->product_shipping = $product_shipping;
+					$product->picture_link = $picture_link;
+					$product->shopper_link = $shopper_link;
+					$product->category_id = $category_id;
+					$product->brand_id = $brand_id;
+					$product->condition_id = $condition_id;
+					$product->retailer_id = $retailer_id;
+					$product->save();
+				}
+				//-------------------------------------------------------------------------------------------------------------------
+
    			}
    		//-----------------------------------------------------
+
+   		return "<div class='alert alert-success'>Successfully crawler site</div>";
 	}
 
 	public function indexNewTVs()
@@ -855,16 +1122,18 @@ class crawlEbayController extends Controller
 		//---------------insert data using model---------------
    			foreach ($products as $pro) 
    			{
-
-   				$product = new Products;
    				
    				if($category == 'Televisions')
    				{
-   					$product->category_id = 5;
+   					$category_id = 5;
+   				}else{
+   					$category_id = 7;
    				}
+
    				if($condition == 'New(selected)')
    				{
-   					$product->condition_id = 1;
+   					$condition_id = 1;
+   					$retailer_id = 3;
    				}
 
    				$arrProduct = explode(' ', $pro['title']);	
@@ -873,23 +1142,54 @@ class crawlEbayController extends Controller
 		   		{
 		   			foreach ($brands as $brand) 
 		   			{
-		   				$product->brand_id = $brand->id;
+		   				$brand_id = $brand->id;
 		   			}	
-		   		}
-		   		else
-		   		{
-		   			$product->brand_id = 204;
+		   		}else{
+		   			$brand_id = 1;
 		   		}
    				
-   				$product->product_name = $pro['title'];
-   				$product->shopper_link = $pro['url'];
-   				$product->product_price = $pro['price'];
-   				$product->picture_link = $pro['image'];
-   				$product->product_shipping = $pro['shipping'];
+   				$product_name = $pro['title'];
+   				$shopper_link = $pro['url'];
+   				$product_price = $pro['price'];
+   				$picture_link = $pro['image'];
+   				$product_shipping = $pro['shipping'];
    				
-   				$product->save();
+   				//----------------------------------------update products for change price-----------------------------------------
+				$product_id = 0;
+				$productExistFilter = $this->productExistFilter($product_name,$shopper_link,$picture_link,$brand_id,$product_id);
+				if($productExistFilter){
+					//this if $productExistFilter return true......will update product from database
+					if($product_id !== 0){
+						$product = Products::find($product_id);
+						$product_price_temp = $product->product_price;
+
+						$product->product_price = $product_price;
+						$product->product_price_temp = $product_price_temp;
+						$product->save();
+					}
+
+				}else{
+
+					//this if $productExistFilter return false........will create new product to database...
+					$product = new Products;
+					$product->product_name = $product_name;
+					$product->product_price = $product_price;
+					$product->product_price_temp = $product_price;
+					$product->product_shipping = $product_shipping;
+					$product->picture_link = $picture_link;
+					$product->shopper_link = $shopper_link;
+					$product->category_id = $category_id;
+					$product->brand_id = $brand_id;
+					$product->condition_id = $condition_id;
+					$product->retailer_id = $retailer_id;
+					$product->save();
+				}
+				//-------------------------------------------------------------------------------------------------------------------
+
    			}
    		//-----------------------------------------------------
+
+   		return "<div class='alert alert-success'>Successfully crawler site</div>";
 	}
 
 	public function indexNewGames()
@@ -900,71 +1200,76 @@ class crawlEbayController extends Controller
 		global $products;
 		$products = array();
 
-			for($i=1; $i<2; $i++) {
+		$html = file_get_contents("http://www.ebay.com.my/sch/Consoles-/139971/i.html?rt=nc&LH_ItemCondition=1000|4000|5000|6000");
+		$crawler->addContent($html);
 
-			$url = 'http://www.ebay.com.my/sch/Consoles-/139971/i.html?LH_ItemCondition=1000|4000|5000|6000&_pgn='.$i.'&_skc=200&rt=nc';
-			$html = file_get_contents( $url );
-			$crawler->addContent($html);
+		//------------------filter category------------------------
+		$category = $crawler->filter('span.kwcat b')->text();
+		//print_r($category);
+		//---------------------------------------------------------
 
-			//------------------filter category------------------------
-			$category = $crawler->filter('span.kwcat b')->text();
-			//print_r($category);
-			//---------------------------------------------------------
+		//------------------filter condition-----------------------
+		$condition = $crawler->filter('span.cbx')->text();
+		//print_r($condition);
+		//---------------------------------------------------------
 
-			//------------------filter condition-----------------------
-			$condition = $crawler->filter('span.cbx')->text();
-			//print_r($condition);
-			//---------------------------------------------------------
+		$crawler->filter('ul#ListViewInner')->each(function ($crawler) {
 
-			//echo "<br><br><strong>Page</strong>" . $i . " > " . $url . "<br><br>";
+			for($i=1; $i<5;) {
 
-			$crawler->filter('ul#ListViewInner')->each(function ($crawler) {
+				$url = 'http://www.ebay.com.my/sch/Consoles-/139971/i.html?LH_ItemCondition=1000|4000|5000|6000&_pgn='.$i.'&_skc=200&rt=nc';
+				$html = file_get_contents( $url );
+				$crawler->addContent($html);
 
-			   global $products;
-			   global $rank;
+				global $products;
+			   	global $rank;
 
-			   $rank = $crawler->filter('h3.lvtitle a')->each(function ($crawler, $i) use (&$products) 
-			   {
-			      	$products[$i]['title'] = $crawler->text();
-			      	$products[$i]['url'] = $crawler->attr('href');
-			   });
+				   $rank = $crawler->filter('h3.lvtitle a')->each(function ($crawler, $i) use (&$products) 
+				   {
+				      	$products[$i]['title'] = $crawler->text();
+				      	$products[$i]['url'] = $crawler->attr('href');
+				   });
 
-			   $rank = $crawler->filter('ul.lvprices.left.space-zero')->each(function ($crawler, $i) use (&$products) 
-			   {
-			   		$toReplace = array('RM', ',');
-				 	$with = array('','');
-			        $products[$i]['price'] = str_replace($toReplace, $with, $crawler->filter('li.lvprice.prc')->last()->text());
-			   });
+				   $rank = $crawler->filter('ul.lvprices.left.space-zero')->each(function ($crawler, $i) use (&$products) 
+				   {
+				   		$toReplace = array('RM', ',');
+					 	$with = array('','');
+				        $products[$i]['price'] = str_replace($toReplace, $with, $crawler->filter('li.lvprice.prc')->last()->text());
+				   });
 
-			   $rank = $crawler->filter('a.img.imgWr2 img')->each(function ($crawler, $i) use (&$products) 
-			   {
-			       $products[$i]['image'] = $crawler->attr('src');
-			   });
+				   $rank = $crawler->filter('a.img.imgWr2 img')->each(function ($crawler, $i) use (&$products) 
+				   {
+				       $products[$i]['image'] = $crawler->attr('src');
+				   });
 
-			   $rank = $crawler->filter('span.ship')->each(function ($crawler, $i) use (&$products) 
-			   {
-			       $products[$i]['shipping'] = $crawler->text();
-			   });
+				   $rank = $crawler->filter('span.ship')->each(function ($crawler, $i) use (&$products) 
+				   {
+				       $products[$i]['shipping'] = $crawler->text();
+				   });
 
-			   ++$rank;
+				   ++$rank;
 
-			});
+			$i++;
+			}
 
 			//dd($products);
-		}
+		});
+		
 		//-------------insert data using model--------------
    			foreach ($products as $pro) 
    			{
-
-   				$product = new Products;
    				
    				if($category == 'Consoles')
    				{
-   					$product->category_id = 6;
+   					$category_id = 6;
+   				}else{
+   					$category_id = 7;
    				}
+
    				if($condition == 'Brand New(selected)')
    				{
-   					$product->condition_id = 1;
+   					$condition_id = 1;
+   					$retailer_id = 3;
    				}
 
    				$arrProduct = explode(' ', $pro['title']);	
@@ -973,25 +1278,70 @@ class crawlEbayController extends Controller
 		   		{
 		   			foreach ($brands as $brand) 
 		   			{
-		   				$product->brand_id = $brand->id;
+		   				$brand_id = $brand->id;
 		   			}	
-		   		}
-		   		else
-		   		{
-		   			$product->brand_id = 204;
+		   		}else{
+		   			$brand_id = 1;
 		   		}
    				
-   				$product->product_name = $pro['title'];
-   				$product->shopper_link = $pro['url'];
-   				$product->product_price = $pro['price'];
-   				$product->picture_link = $pro['image'];
-   				$product->product_shipping = $pro['shipping'];
+   				$product_name = $pro['title'];
+   				$shopper_link = $pro['url'];
+   				$product_price = $pro['price'];
+   				$picture_link = $pro['image'];
+   				$product_shipping = $pro['shipping'];
    				
-   				$product->save();
+   				//----------------------------------------update products for change price-----------------------------------------
+				$product_id = 0;
+				$productExistFilter = $this->productExistFilter($product_name,$shopper_link,$picture_link,$brand_id,$product_id);
+				if($productExistFilter){
+					//this if $productExistFilter return true......will update product from database
+					if($product_id !== 0){
+						$product = Products::find($product_id);
+						$product_price_temp = $product->product_price;
+
+						$product->product_price = $product_price;
+						$product->product_price_temp = $product_price_temp;
+						$product->save();
+					}
+
+				}else{
+
+					//this if $productExistFilter return false........will create new product to database...
+					$product = new Products;
+					$product->product_name = $product_name;
+					$product->product_price = $product_price;
+					$product->product_price_temp = $product_price;
+					$product->product_shipping = $product_shipping;
+					$product->picture_link = $picture_link;
+					$product->shopper_link = $shopper_link;
+					$product->category_id = $category_id;
+					$product->brand_id = $brand_id;
+					$product->condition_id = $condition_id;
+					$product->retailer_id = $retailer_id;
+					$product->save();
+				}
+				//-------------------------------------------------------------------------------------------------------------------
+
    			}
    		//---------------------------------------------------
+
+   		return "<div class='alert alert-success'>Successfully crawler site</div>";
 	}
 
+	private function productExistFilter($product_name,$shopper_link,$picture_link,$brand_id, &$product_id){
+
+		$products = \DB::table('products')
+						->where('shopper_link', 'LIKE', $shopper_link)
+						->where('brand_id', '=', $brand_id)
+						->first();
+
+		if($products){
+			$product_id = $products->id;
+			return true; //means the product is exist
+		}else{
+			return false; //means the product is not exist
+		}
+	}
 
 	
 }
